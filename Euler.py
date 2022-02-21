@@ -17,8 +17,9 @@ def solve_to(dx_dt, initial_point, deltat_max=0.001, time_interval=[0, 1]):
 
     num_steps = int(np.ceil((time_interval[1] - time_interval[0])/deltat_max))
     steps = [deltat_max for i in range(num_steps - 1)]
-    steps.append(time_interval[1] - deltat_max*num_steps)
+    steps.append(time_interval[1] - time_interval[0] - np.sum(steps))  # manually add last step
 
+# TEST test to check if steps sum to time interval
     current_euler = initial_point
     current_time = time_interval[0]
     for step in steps:
@@ -26,6 +27,7 @@ def solve_to(dx_dt, initial_point, deltat_max=0.001, time_interval=[0, 1]):
 
         current_time += step
         current_euler = next_euler
+# NUMERICAL ISSUE : time does not add up to what it is meant to be exactly due to rounding errors
     return current_euler
 
 
@@ -33,7 +35,7 @@ def solve_ode(dx_dt, initial_condition, time, deltat_max=0.001):
     x = np.zeros(shape=(initial_condition.size, len(time)))
     x[:, 0] = initial_condition
 
-    for i in range(len(time)):
+    for i in range(len(time)-1):
         x[:, i+1] = solve_to(dx_dt, x[:, i], deltat_max, [time[i], time[i+1]])
     return x
 
