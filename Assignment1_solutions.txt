@@ -1,0 +1,14 @@
+1 rk4_euler_graph.py solves the ODE x_dot = x, with initial condition x(0) = 1. A double logarithmically scaled
+plot of of error vs size of timestep is included on the left of the figure errors_rk4andEuler.png
+	- euler_step, solve_to and deltat_max and solve_ode functions are included in Euler.py
+	
+2 rk4_euler_graph.py also solves the abpve ODE using the 4th order Runge_Kutta integration method
+	- solve_ode includes parameter 'method' which allows user to choose between using runge-kutta and euler
+	- since the loglog graph of error vs step_size is a straight line graph with gradient 4 it can be shown that
+	the error is proportional to the step size raised to the power of 4.
+	- errors_rk4andEuler.png include errors of both methods within the same plot
+	- compare_methods.py compares Euler and Runge-Kutta methods of 1 step integration by finding time_steps
+	for both methods that produce similar error rates (within under 5% of each other) and then running each 
+	method on the above ODE and timing it. Runge_Kutta is found to be better.
+	
+	

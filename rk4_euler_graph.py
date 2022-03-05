@@ -54,9 +54,14 @@ ax2.set_xlabel(r'Maximum step size')
 ax2.set_title(r"classic Runge-Kutta method")
 plt.grid()
 
-plt.show()
-while True:
-    print('eat shit')
+y_lim = (ax2.get_ylim()[0], ax1.get_ylim()[1])
+ax1.set_ylim(y_lim)
+ax2.set_ylim(y_lim)
+
+fig.savefig('errors_rk4andEuler.png')
+
+''' How does the error depend on Δt\Delta tΔt now? How does this compare with the error for the Euler method (put this in the
+ same plot)? '''
 
 
 '''
