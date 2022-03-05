@@ -9,7 +9,7 @@ eul_indx = None
 rk4_indx = None
 for i, error_eul in enumerate(np.abs(errors_euler)):
     for j, error_RK4 in enumerate(np.abs(errors_RK4)):
-        if error_eul*0.9 < error_RK4 < error_eul*1.1:  # if rk4 error within 10% of euler error
+        if error_eul*0.95 < error_RK4 < error_eul*1.05:  # if rk4 error within 10% of euler error
             tolerance = np.abs((error_RK4/ error_eul)*100 - 100)
 
             print(f'euler error index {i} and rk4 error index {j} have error rates within 10% of each other')
