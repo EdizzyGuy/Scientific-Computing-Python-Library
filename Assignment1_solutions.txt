@@ -11,4 +11,13 @@ plot of of error vs size of timestep is included on the left of the figure error
 	for both methods that produce similar error rates (within under 5% of each other) and then running each 
 	method on the above ODE and timing it. Runge_Kutta is found to be better.
 	
+3 solve_ODE_system.py showcases that the function is capable of solving the 2nd order ODE x_ddot = -x via
+	solving x_dot = y and y_dot = -x and also prints the error of both methods when operating on this system
+	of ODE's
+	- true solutions are held in the variable true_results
+	- when running over large range of t with large step sizes euler solutions grow exponentially and rk4
+	solutions decay
+	-cant get graph as fine as I want to because that would require small time intervals and with
+	small time intervals you cant set the max step size to be big enough to observe numerical issues
+	
 	
