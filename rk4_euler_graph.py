@@ -33,8 +33,6 @@ for time_step in time_steps:
 
     errors_euler[i] = result_euler[1][0] - true_ans
     errors_RK4[i] = result_RK4[1][0] - true_ans
-    if i % 10 == 0:
-        print(i)
     i += 1
 
 fig = plt.figure(figsize=(8, 6), dpi=100)
