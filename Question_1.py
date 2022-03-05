@@ -50,7 +50,6 @@ plt.grid()
 ax2 = plt.subplot(1, 2, 2)
 plt.loglog(time_steps, np.abs(errors_RK4), color='blue', linewidth=2.5, linestyle='-')
 ax2.set_xlabel(r'Maximum step size')
-ax2.set_ylabel(r'Error in approximation to x(1)')
 # maybe doesnt need y axis label
 ax2.set_title(r"classic Runge-Kutta method")
 plt.grid()
