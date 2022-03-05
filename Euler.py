@@ -1,3 +1,4 @@
+# FIND A BETTER NAME FOR THIS FILE
 import numpy as np
 import time
 
@@ -25,7 +26,7 @@ def RK4_step(dx_dt, initial_point, step_size):
 
 
 def solve_to(dx_dt, initial_point, deltat_max=0.001, time_interval=[0, 1], method='RK4'):
-    """ Function will use Euler's method to solve a system of equations characterised by x
+    """ Function will use a valid method to solve a system of equations characterised by dx_dt
     with a maximum step size between subsequent x being deltat_max.
     Will solve ODE from time_interval[START, FINISH], where start is taken as argument in case the dynamical
     system is implicitly time dependent"""
@@ -64,41 +65,25 @@ def solve_to(dx_dt, initial_point, deltat_max=0.001, time_interval=[0, 1], metho
 
                 current_time += deltat_max
                 current_step = next_step
-                i += 1
-                if i == 10 ** 5:
-                    end = time.time()
-                    elapsed = end - start
-                    print(elapsed)
             min_step = time_interval[1] - current_time
             last_step = RK4_step(dx_dt, current_step, step_size=min_step)
 # NUMERICAL ISSUE : time does not add up to what it is meant to be exactly due to rounding errors
     return last_step
 
 
-def solve_ode(dx_dt, initial_condition, time, deltat_max=0.001, method='RK4'):
-    x = np.zeros(shape=(len(time), initial_condition.size))
+def solve_ode(dx_dt, initial_condition, solve_for, deltat_max=0.001, method='RK4'):
+    """ This function will solve a system of differential equations characterised by dx_dt, with a given initial
+    condition. Can use either 'RK4' or 'Euler' as a method of integration, and will implement these methods with the
+    time step defined as deltat_max. Function will solve for all values of time inside the array 'solve_for'
+    Returns an array of values of size m by n, where m is the number of time values to solve for and n is the
+    dimensionality of the system of equations.
+    When indexing the output first index will give a time point and second will give the corresponding variable of the
+    system of equations at that time point. Time points are mapped from the solve_for array
+    """
+    x = np.zeros(shape=(len(solve_for), initial_condition.size))
     x[0, :] = initial_condition
 
-    for i in range(len(time)-1):
-        x[i+1, :] = solve_to(dx_dt, x[i, :], deltat_max, [time[i], time[i+1]], method=method)
+    for i in range(len(solve_for) - 1):
+        x[i+1, :] = solve_to(dx_dt, x[i, :], deltat_max, [solve_for[i], solve_for[i + 1]], method=method)
     return x
-
-
-'''
-def solve_to(dx_dt, initial_condition, deltat_max=0.001, time_interval=[0, 1]):
-    pass
-    """ Initial condition must be given as a numpy array """
-    time = np.arange(time_interval[0], time_interval[1], step=deltat_max)
-    time = np.append(time, time_interval[1])
-    x = np.zeros(shape=(initial_condition.size, len(time)))
-    x[:, 0] = initial_condition  # row major form therefore row first
-
-    deltat = time[1] - time[0]
-    next_euler = euler_step(dx_dt, initial_condition, deltat)
-    for i in range(len(time)):
-        deltat = time[i+1] - time[i]
-        next_euler = euler_step(dx_dt, x[:, i], deltat)
-        x[:, i+1] = next_euler
-
-    return x, time '''
 
