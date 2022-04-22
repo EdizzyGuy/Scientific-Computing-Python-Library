@@ -1,5 +1,11 @@
+import sys
+import os
+path = sys.path[0]
+parent = os.path.dirname(path)
+sys.path.append(parent)
+
 from rk4_euler_graph import errors_RK4, errors_euler, time_steps, dx_dt, initial_condition
-import Euler
+import ode
 import numpy as np
 import time
 
@@ -9,7 +15,7 @@ eul_indx = None
 rk4_indx = None
 for i, error_eul in enumerate(np.abs(errors_euler)):
     for j, error_RK4 in enumerate(np.abs(errors_RK4)):
-        if error_eul*0.95 < error_RK4 < error_eul*1.05:  # if rk4 error within 10% of euler error
+        if error_eul*0.95 < error_RK4 < error_eul*1.05:  # if rk4 error within +/- 5% of euler error
             tolerance = np.abs((error_RK4/ error_eul)*100 - 100)
 
             print(f'euler error index {i} and rk4 error index {j} have error rates within 10% of each other')
@@ -31,9 +37,9 @@ print(f'step sizes {eul_time_step} and {rk4_time_step} give very similar errors 
 # find out how long each method takes with this step size
 solve_between = np.array([0, 1])
 start = time.time()
-Euler.solve_ode(dx_dt, initial_condition, solve_between, deltat_max=eul_time_step, method='Euler')
+ode.solve_ode(dx_dt, initial_condition, solve_between, deltat_max=eul_time_step, method='Euler')
 lap_1 = time.time()
-Euler.solve_ode(dx_dt, initial_condition, solve_between, deltat_max=rk4_time_step, method='RK4')
+ode.solve_ode(dx_dt, initial_condition, solve_between, deltat_max=rk4_time_step, method='RK4')
 lap_2 = time.time()
 
 eul_time = lap_1 - start

@@ -1,9 +1,11 @@
-1 rk4_euler_graph.py solves the ODE x_dot = x, with initial condition x(0) = 1. A double logarithmically scaled
-plot of of error vs size of timestep is included on the left of the figure errors_rk4andEuler.png
-	- euler_step, solve_to and deltat_max and solve_ode functions are included in Euler.py
+1 
+rk4_euler_graph.py solves the ODE x_dot = x, with initial condition x(0) = 1. A double logarithmically scaled
+plot of of error vs size of timestep is included on the left and right of the figure errors_rk4andEuler.png
+	- euler_step, solve_to and deltat_max and solve_ode functions are included in ode.py
 	
-2 rk4_euler_graph.py also solves the abpve ODE using the 4th order Runge_Kutta integration method
-	- solve_ode includes parameter 'method' which allows user to choose between using runge-kutta and euler
+2 
+rk4_euler_graph.py also solves the above ODE using the 4th order Runge_Kutta integration method
+	- solve_ode includes parameter 'method' which allows user to choose between using runge-kutta and euler and others
 	- since the loglog graph of error vs step_size is a straight line graph with gradient 4 it can be shown that
 	the error is proportional to the step size raised to the power of 4.
 	- errors_rk4andEuler.png include errors of both methods within the same plot
@@ -11,12 +13,13 @@ plot of of error vs size of timestep is included on the left of the figure error
 	for both methods that produce similar error rates (within under 5% of each other) and then running each 
 	method on the above ODE and timing it. Runge_Kutta is found to be better.
 	
-3 solve_ODE_system.py showcases that the function is capable of solving the 2nd order ODE x_ddot = -x via
+3 
+solve_ODE_system.py showcases that the function is capable of solving the 2nd order ODE x_ddot = -x via
 	solving x_dot = y and y_dot = -x and also prints the error of both methods when operating on this system
 	of ODE's
 	- true solutions are held in the variable true_results
 	- when running over large range of t with large step sizes euler solutions grow exponentially and rk4
-	solutions decay
+	solutions decay. this is showcased in showcase_numerical_issues.py
 	-cant get graph as fine as I want to because that would require small time intervals and with
 	small time intervals you cant set the max step size to be big enough to observe numerical issues
 	

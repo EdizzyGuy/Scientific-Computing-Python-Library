@@ -1,4 +1,10 @@
-import Euler
+import sys
+import os
+path = sys.path[0]
+parent = os.path.dirname(path)
+sys.path.append(parent)
+
+import ode
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -6,14 +12,18 @@ import matplotlib.pyplot as plt
 solve ode to a certain point
 solve ode with multiple points in between AND PRINT ERRORS'''
 
-'''Q1 : Solve ODE x_dot = x, with initial condition x(0) = 1.
-solve with different time steps'''
+'''
+Q1 : Solve ODE x_dot = x, with initial condition x(0) = 1.
+solve with different time steps
+
+Q2 : Produce a (nicely formatted) plot with double logarithmic 
+scale showing how the error depends on the size of the timestep Δt\Delta tΔt.
+do for both Euler step and RK4'''
 
 
-def dx_dt(x):
+def dx_dt(t, x):
     x_dot = x
     return x_dot
-
 
 time_steps = np.logspace(-4, 0, 42)
 # start at 10^-16 as this is the smallest number matlab can represent IS IT
@@ -28,8 +38,8 @@ errors_RK4 = np.zeros(shape=time_steps.shape)
 
 i = 0
 for time_step in time_steps:
-    result_euler = Euler.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method='Euler')
-    result_RK4 = Euler.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method='RK4')
+    result_euler = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method='Euler')
+    result_RK4 = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method='RK4')
 
     errors_euler[i] = result_euler[1][0] - true_ans
     errors_RK4[i] = result_RK4[1][0] - true_ans
@@ -56,10 +66,11 @@ y_lim = (ax2.get_ylim()[0], ax1.get_ylim()[1])
 ax1.set_ylim(y_lim)
 ax2.set_ylim(y_lim)
 
-fig.savefig('errors_rk4andEuler.png')
+plt.show()
+#fig.savefig('errors_rk4andEuler.png')
 
 ''' How does the error depend on Δt\Delta tΔt now? How does this compare with the error for the Euler method (put this in the
- same plot)? '''
+same plot)? '''
 
 
 '''
@@ -68,9 +79,6 @@ print('Individual errors are : ', error)
 print('Average error is :', np.average(error))
 # HAS REDUCING ACCURACY AS ESTIMATES DIVERGE FROM INITIAL POINT
 '''
-'''Produce a (nicely formatted) plot with double logarithmic scale showing how 
-the error depends on the size of the timestep Δt'''
-# DOUBLE LOGARITHMIC SCALE IS LOG LOG GRAPH
 
 '''
 WORKS WITH 2 TIMES (time = [0, 1])

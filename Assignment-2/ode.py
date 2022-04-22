@@ -82,7 +82,7 @@ def solve_to(dx_dt, initial_point, deltat_max=0.001, time_interval=[0, 1], metho
     return last_step, last_time
 
 
-def solve_ode(dx_dt, initial_condition, solve_for=np.linspace(0,10,100), deltat_max=0.001, method='RK4', function_parameters=()):
+def solve_ode(dx_dt, initial_condition, solve_for=np.linspace(0,10,100), deltat_max=0.001, method='RK4', initial_time=0, function_parameters=()):
     """ This function will solve a system of differential equations characterised by dx_dt, with a given initial
     condition. Can use either 'RK4' or 'Euler' as a method of integration, and will implement these methods with the
     time step defined as deltat_max. Function will solve for all values of time inside the array 'solve_for'

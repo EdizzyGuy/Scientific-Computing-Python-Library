@@ -1,5 +1,11 @@
+import sys
+import os
+path = sys.path[0]
+parent = os.path.dirname(path)
+sys.path.append(parent)
+
 import numpy as np
-import Euler
+import ode
 import matplotlib.pyplot as plt
 
 # What goes wrong with the numerical solutions if you run them over a large range of t? (This is clearer if you plot x
@@ -7,7 +13,7 @@ import matplotlib.pyplot as plt
 # WRITE ABOUT WHAT GOES WRONG MORE ANALYTICALLY / MATHEMATICALLY
 
 
-def dX_dt(X):
+def dX_dt(t, X):
     X_dot = np.array([X[1], -X[0]])
     return X_dot
 
@@ -16,8 +22,8 @@ initial_condition = np.array([0, 1])
 time_step = 1
 solve_for = np.linspace(0, 200*3, 1001)
 
-result_euler = Euler.solve_ode(dX_dt, initial_condition, solve_for, deltat_max=time_step, method='Euler')
-result_rk4 = Euler.solve_ode(dX_dt, initial_condition, solve_for, deltat_max=time_step, method='RK4')
+result_euler = ode.solve_ode(dX_dt, initial_condition, solve_for, deltat_max=time_step, method='Euler')
+result_rk4 = ode.solve_ode(dX_dt, initial_condition, solve_for, deltat_max=time_step, method='RK4')
 true_results = np.array([np.sin(solve_for), np.cos(solve_for)]).transpose()
 
 fig = plt.figure(figsize=(15, 6), dpi=100)
@@ -62,7 +68,8 @@ ax5.set_xlabel(r'$\bf{t}$')
 plt.subplots_adjust(hspace=0.42)
 plt.text(0.511, 0.45, r'Approximations of $\bf{x}$ and true solution in time', transform=fig.transFigure,
          horizontalalignment='center', weight='bold', fontsize=12)
-fig.savefig('numerical_issues.png')
+plt.show()
+#fig.savefig('numerical_issues.png')
 # y_lim = (ax2.get_ylim()[0], ax1.get_ylim()[1])
 # ax1.set_ylim(y_lim)
 # ax2.set_ylim(y_lim)
