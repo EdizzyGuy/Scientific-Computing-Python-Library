@@ -23,6 +23,15 @@ def mean_square_error(A, B, ax=None):
     mse = (np.square(A - B)).mean(ax)
     return mse
 
+def isInteger(N):
+    X = int(N)
+ 
+    diff = N - X
+    if np.isclose(diff, 0):
+        return True
+         
+    return False
+
 def test():
     print('yes')
     return

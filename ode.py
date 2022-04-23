@@ -98,6 +98,4 @@ def solve_ode(dx_dt, initial_condition, solve_for=np.linspace(0,10,100), deltat_
         initial_condition = x[i, :]
         time_interval = [solve_for[i], solve_for[i + 1]]
         x[i+1, :], current_time = solve_to(dx_dt, initial_condition, deltat_max, time_interval, method, function_parameters)
-        if current_time != solve_for[i+1]:
-            print('error')
     return x

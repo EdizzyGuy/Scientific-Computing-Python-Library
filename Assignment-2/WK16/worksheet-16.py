@@ -1,3 +1,4 @@
+#%%
 import sys
 import os
 path = sys.path[0]
@@ -11,7 +12,7 @@ from ode import solve_ode
 from utility import get_phase_portrait
 from scipy.integrate import solve_ivp
 from scipy.optimize import fsolve
-
+#%%
 '''
 Q1
 i   simulate predator prey equations
@@ -38,7 +39,7 @@ Q4
     - How should a user pass the phase-condition to your code?
     - What options might a user want to have access to?
 '''
-
+#%%
 # predator prey equations:
 def dXdt(t, X, a, b, d):
     x = X[0]
@@ -55,7 +56,7 @@ a, b, d = 1, 0.26, 0.1
 t = None
 X = np.array([3, 7])
 print(dXdt(t, X, a, b, d)) # function works
-
+#%%
 # simulate with b = 0.26
 b = 0.26
 initial_condition = np.random.uniform(size=2)
@@ -74,16 +75,16 @@ traj = solve_ivp(fun=dXdt, t_span=[solve_for[0], solve_for[-1]], y0=initial_cond
 end_scipy = time.time()
 scipy_time = end_scipy - start_scipy
 
-get_phase_portrait(dXdt, initial_condition, solve_for, title=f"Simulation of Predator-prey equations with arbitrary initial conditions : b={b}", 
+path = get_phase_portrait(dXdt, initial_condition, solve_for, title=f"Simulation of Predator-prey equations with arbitrary initial conditions : b={b}", 
     xlabel='prey', ylabel='predator', deltat_max=time_step, function_parameters=(a,b,d))
 # CONVERGES TO STABLE LIMIT CYCLE FOR b = 0.26
-
-# long time limit for b < 0.26
+#%%
+# long time limit for b > 0.26
 b = 0.3
 get_phase_portrait(dXdt, initial_condition, solve_for, title=f"Simulation of Predator-prey equations with arbitrary initial conditions : b={b}", 
     xlabel='prey', ylabel='predator', deltat_max=time_step, function_parameters=(a,b,d))
 # CONVERGES TO STABLE EQUILIBRIUM FOR b > 0.3
-
+#%%
 #long time limit for b < 0.26
 b = 0.2
 get_phase_portrait(dXdt, initial_condition, solve_for, title=f"Simulation of Predator-prey equations with arbitrary initial conditions : b={b}", 
@@ -91,6 +92,7 @@ get_phase_portrait(dXdt, initial_condition, solve_for, title=f"Simulation of Pre
 # STABLE LIMIT CYCLE -> it has been shown that solutions collapse to a stable equilibrium at b ~=0.27
 
 #------------------------------------------------------------------------
+#%%
 # isolate a periodic orbit
 # start at large time therfore will definitely be an orbit
 solve_for = np.linspace(0, 1000)
@@ -105,10 +107,11 @@ solve_for = np.linspace(0, 25, 10000)
 orbital_trajectory = get_phase_portrait(dXdt, initial_orbit, solve_for, title=f"Simulation of Predator-prey equations with arbitrary initial conditions : b={b}", 
                         xlabel='prey', ylabel='predator', deltat_max=time_step, function_parameters=(a,b,d))
 # numpys is close will elementwise evaluate vectors to see if they are close within a tolerance of 1e-08
+
 close_positions = []
 for index, position in enumerate(orbital_trajectory[1:, :]):
     if np.all(np.isclose(initial_orbit, position, atol=1e-04)):
-        close_positions.append(index)
+        close_positions.append(index+1)
 if len(close_positions) > 1:
     closest_index = None
     closest_mse = np.inf
@@ -122,9 +125,10 @@ else:
 # index 8325 found to be close to start position
 # therefore can find period from solve_for array
 period = solve_for[closest_index]
+print(f'period found to be {period}')
 # PERIOD FOUND TO BE 20.81
 # STARTING CONDITION : initial_orbit, (a,b,d = 1, 0.2, 0.1)
-
+#%%
 #-----------------------------------------------------------------------
 # determine an appropriate phase condition
 #  x_dot = 0
@@ -132,6 +136,7 @@ def phase_condition(X, dXdt, args):
     X_dot = dXdt(t, X, *args)
     return X_dot[0]
 
+#%%
 #-----------------------------------------------------------------------
 # Construct the shooting root-finding probleM for the predator-prey example; 
 # check that it can find the periodic orbit found in 1.
@@ -142,14 +147,15 @@ def G(X, T, args):
    G = X - sol_T
    return G
 
-# functions G and phase condition tested for accuracy
+# functions G and phase condition verified
 
 def root_finding_problem(X, G, phase_condition, dXdt, args):
     sol = np.zeros(shape=(3,))
     sol[:2] = G(X[:2], X[-1], args)
     sol[-1] = phase_condition(X[:2], dXdt, args)
     return sol
-
+#%%
+# testing to find period
 test_init = np.zeros(shape=(3,))
 test_init[:2] = initial_orbit
 test_init[-1] = 15
@@ -162,10 +168,11 @@ test_traj = get_phase_portrait(dXdt, test_sol, solve_for, title=f"Simulation of 
                         xlabel='prey', ylabel='predator', deltat_max=time_step, function_parameters=(a,b,d))
 
 if np.all(np.isclose(test_traj[0], test_traj[-1], atol=1e-04)):
-    print('true trajectory correctly found')
+    print('true orbital trajectory correctly found')
 
 # by inspection of the two found orbits we can see they are the same
 # also they have equal periods
+#%%
 
 #-------------------------------------------------------------------------
 # Generalise your code so that you can use arbitrary differential equations of 
@@ -179,14 +186,14 @@ def find_limit_cycles(init_guess, dXdt, find_period=True, phase_condition=None, 
     init guess must have state variables first then guess of period if period is known put known period in
     TESTS : test on higher dimensional question
             test on solution with known period"""
-
-    if (find_period is True) and (phase_condition is None):
+    t = None
+    if find_period is False:
+        phase_condition = lambda X, dXdt, args : 0
+    elif (find_period is True) and (phase_condition is None):
 
         def phase_condition(X, dXdt, args):
             X_dot = dXdt(t, X, *args)
             return X_dot[0]
-    elif find_period is False:
-        phase_condition = lambda X, dXdt, args : 0
 
     def G(init_guess, args):
         X = init_guess[:-1]
@@ -202,16 +209,21 @@ def find_limit_cycles(init_guess, dXdt, find_period=True, phase_condition=None, 
         sol[-1] = phase_condition(init_guess[:-1], dXdt, args)
         return sol    
 
-    roots = fsolve(root_finding_problem, init_guess, args=(G, phase_condition, dXdt, (a, b, d)))
+    roots = fsolve(root_finding_problem, init_guess, args=(G, phase_condition, dXdt, args))
     return roots
 
+init_guess = np.random.uniform(size=3)
+init_guess[-1] *= 40
 roots = find_limit_cycles(test_init, dXdt, args=(a,b,d))
+print(f'period found to be {roots[-1]}')
 # correctly finds roots on example
-
+#%%
 # test to see if code works when period is known
 period = roots[-1]
 init_guess = np.random.uniform(size=3)
 init_guess[-1] = period
 roots = find_limit_cycles(init_guess, dXdt, find_period=False, args=(a,b,d))
-get_phase_portrait(dXdt, roots[:-1], solve_for=np.linspace(0, period, 100), function_parameters=(a,b,d))
+path = get_phase_portrait(dXdt, roots[:-1], solve_for=np.linspace(0, period, 100), function_parameters=(a,b,d))
 # as illustrated by phase portrait function can also handle known periods
+print(f'period found to be {roots[-1]}')
+# %%
