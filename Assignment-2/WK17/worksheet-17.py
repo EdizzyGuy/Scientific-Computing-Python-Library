@@ -52,7 +52,7 @@ u = sci.y
 plt.plot(u[0], u[1])
 plt.show()
 
-som = get_phase_portrait(hopf_bifurcation, init_cond, solve_for=np.linspace(0,200,1000), deltat_max=1e-2, function_parameters=(beta, sigma))
+som = get_phase_portrait(hopf_bifurcation, init_cond, solve_for=np.linspace(0,200,1000), deltat_max=1e-2, args=(beta, sigma))
 # many problems with this equation have found out that it grows exponentially under many conditions
 # TODO : error message for overflow and graceful exit
 # handles negative and 0 sigma well
@@ -70,10 +70,10 @@ init_guess[-1] = 5
 roots = find_limit_cycles(init_guess, hopf_bifurcation, args=(beta, sigma))
 # QUITE SLOW in some cases a minute
 # check to verify this is a correct limit cycle
-path = get_phase_portrait(hopf_bifurcation, roots[:-1], solve_for=np.linspace(0,roots[-1], 100), function_parameters=(beta, sigma))
+path = get_phase_portrait(hopf_bifurcation, roots[:-1], solve_for=np.linspace(0,roots[-1], 100), args=(beta, sigma))
 if np.all(np.isclose(path[0], path[-1])):
     print('start and end points of orbit are the same')
-path = get_phase_portrait(hopf_bifurcation, roots[:-1], solve_for=np.linspace(0,roots[-1]*0.9, 100), function_parameters=(beta, sigma))   
+path = get_phase_portrait(hopf_bifurcation, roots[:-1], solve_for=np.linspace(0,roots[-1]*0.9, 100), args=(beta, sigma))   
 # as shown the correct period is found (and not a scalar multiple)
 
 #---------------------------------------------------------------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ def test_hopf(hopf_bifurcation):
 
 # code has shown to find limit cycles with period a multiple of the real period
 test = test_hopf(hopf_bifurcation)
-path = get_phase_portrait(hopf_bifurcation, test[0][:-1], solve_for=np.linspace(0, test[1][-1], 100), function_parameters=(2, -1))
+path = get_phase_portrait(hopf_bifurcation, test[0][:-1], solve_for=np.linspace(0, test[1][-1], 100), args=(2, -1))
 # works ~80% of the time in testing
 
 #-------------------------------------------------------------------------------------
@@ -132,7 +132,8 @@ def test_ext_hopf():
     anal_period = 2* np.pi
     anal_radius = np.sqrt(beta)
 
-    init_cond = np.random.normal(size=3) * 9
+    init_cond = np.array([1,1,1])
+    #np.random.normal(size=3) * 9
     period_guess = np.random.uniform(low=5, high=25, size=1)
     #changed period guess from normal distribution to uniform as sometimes period guess would converge to sol of T=0
     init_guess = np.concatenate((init_cond, period_guess))
@@ -149,3 +150,12 @@ def test_ext_hopf():
     return init_guess, roots
 
 roots = test_ext_hopf()
+# works sometimes but solutions diverge for long time and that may be causing issues for fsolve
+# maybe try smaller step sizes
+
+#-----------------------------------------------------------------------------------------------------
+# TODO MOAR TESTS
+# Add tests to check that your code handles errors gracefully. Consider errors such as
+  #  - providing initial values where the dimensions don't match those of the ODE, or
+  #  - providing inputs such that the numerical root finder does not converge.
+

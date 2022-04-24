@@ -66,7 +66,7 @@ time_step = 0.01
 
 # REPLACE THE BELOW WITH A TIMER FUNCTION
 start_myode = time.time()
-trajectory = solve_ode(dXdt, initial_condition, solve_for, deltat_max=time_step, method='RK4', function_parameters=(a, b, d))
+trajectory = solve_ode(dXdt, initial_condition, solve_for, deltat_max=time_step, method='RK4', args=(a, b, d))
 end_myode = time.time()
 my_ode_time = end_myode - start_myode
 
@@ -76,19 +76,19 @@ end_scipy = time.time()
 scipy_time = end_scipy - start_scipy
 
 path = get_phase_portrait(dXdt, initial_condition, solve_for, title=f"Simulation of Predator-prey equations with arbitrary initial conditions : b={b}", 
-    xlabel='prey', ylabel='predator', deltat_max=time_step, function_parameters=(a,b,d))
+    xlabel='prey', ylabel='predator', deltat_max=time_step, args=(a,b,d))
 # CONVERGES TO STABLE LIMIT CYCLE FOR b = 0.26
 #%%
 # long time limit for b > 0.26
 b = 0.3
 get_phase_portrait(dXdt, initial_condition, solve_for, title=f"Simulation of Predator-prey equations with arbitrary initial conditions : b={b}", 
-    xlabel='prey', ylabel='predator', deltat_max=time_step, function_parameters=(a,b,d))
+    xlabel='prey', ylabel='predator', deltat_max=time_step, args=(a,b,d))
 # CONVERGES TO STABLE EQUILIBRIUM FOR b > 0.3
 #%%
 #long time limit for b < 0.26
 b = 0.2
 get_phase_portrait(dXdt, initial_condition, solve_for, title=f"Simulation of Predator-prey equations with arbitrary initial conditions : b={b}", 
-    xlabel='prey', ylabel='predator', deltat_max=time_step, function_parameters=(a,b,d))
+    xlabel='prey', ylabel='predator', deltat_max=time_step, args=(a,b,d))
 # STABLE LIMIT CYCLE -> it has been shown that solutions collapse to a stable equilibrium at b ~=0.27
 
 #------------------------------------------------------------------------
@@ -96,7 +96,7 @@ get_phase_portrait(dXdt, initial_condition, solve_for, title=f"Simulation of Pre
 # isolate a periodic orbit
 # start at large time therfore will definitely be an orbit
 solve_for = np.linspace(0, 1000)
-trajectory = solve_ode(dXdt, initial_condition, solve_for, deltat_max=time_step, method='RK4', function_parameters=(a, b, d))
+trajectory = solve_ode(dXdt, initial_condition, solve_for, deltat_max=time_step, method='RK4', args=(a, b, d))
 # BUG found bug where solve ode will always start at time = 0 even when specified to start at differet t
 initial_orbit = trajectory[-1, :]
 
@@ -105,7 +105,7 @@ initial_orbit = trajectory[-1, :]
 # is negligible
 solve_for = np.linspace(0, 25, 10000)
 orbital_trajectory = get_phase_portrait(dXdt, initial_orbit, solve_for, title=f"Simulation of Predator-prey equations with arbitrary initial conditions : b={b}", 
-                        xlabel='prey', ylabel='predator', deltat_max=time_step, function_parameters=(a,b,d))
+                        xlabel='prey', ylabel='predator', deltat_max=time_step, args=(a,b,d))
 # numpys is close will elementwise evaluate vectors to see if they are close within a tolerance of 1e-08
 
 close_positions = []
@@ -142,7 +142,7 @@ def phase_condition(X, dXdt, args):
 # check that it can find the periodic orbit found in 1.
 
 def G(X, T, args):
-   trajectory_T = solve_ode(dXdt, X, solve_for=[0, T], function_parameters=args)
+   trajectory_T = solve_ode(dXdt, X, solve_for=[0, T], args=args)
    sol_T = trajectory_T[-1,:]
    G = X - sol_T
    return G
@@ -165,7 +165,7 @@ test_sol = roots[:2]
 test_period = roots[-1]
 solve_for = np.linspace(0, test_period, 100)
 test_traj = get_phase_portrait(dXdt, test_sol, solve_for, title=f"Simulation of Predator-prey equations with arbitrary initial conditions : b={b}", 
-                        xlabel='prey', ylabel='predator', deltat_max=time_step, function_parameters=(a,b,d))
+                        xlabel='prey', ylabel='predator', deltat_max=time_step, args=(a,b,d))
 
 if np.all(np.isclose(test_traj[0], test_traj[-1], atol=1e-04)):
     print('true orbital trajectory correctly found')
@@ -198,7 +198,7 @@ def find_limit_cycles(init_guess, dXdt, find_period=True, phase_condition=None, 
     def G(init_guess, args):
         X = init_guess[:-1]
         T = init_guess[-1]
-        trajectory_T = solve_ode(dXdt, X, solve_for=[0, T], function_parameters=args)
+        trajectory_T = solve_ode(dXdt, X, solve_for=[0, T], args=args)
         sol_T = trajectory_T[-1,:]
         G = X - sol_T
         return G
@@ -223,7 +223,7 @@ period = roots[-1]
 init_guess = np.random.uniform(size=3)
 init_guess[-1] = period
 roots = find_limit_cycles(init_guess, dXdt, find_period=False, args=(a,b,d))
-path = get_phase_portrait(dXdt, roots[:-1], solve_for=np.linspace(0, period, 100), function_parameters=(a,b,d))
+path = get_phase_portrait(dXdt, roots[:-1], solve_for=np.linspace(0, period, 100), args=(a,b,d))
 # as illustrated by phase portrait function can also handle known periods
 print(f'period found to be {roots[-1]}')
 # %%

@@ -56,7 +56,7 @@ def find_limit_cycles(init_guess, dXdt, solver=solve_ode, deltat_max=np.inf, met
         def G(dXdt, init_guess, args):
             X = init_guess[:-1]
             T = init_guess[-1]
-            trajectory_T = solver(dXdt, X, [0, T], deltat_max, method, **solver_args, function_parameters=args)
+            trajectory_T = solver(dXdt, X, [0, T], deltat_max, method, **solver_args, args=args)
             terminal_T = trajectory_T[-1,:]
             G = X - terminal_T
             return G
