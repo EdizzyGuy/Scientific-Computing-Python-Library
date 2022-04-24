@@ -2,9 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from ode import solve_ode
 from scipy.integrate import solve_ivp
-
 # MAKE THIS WORK WITH NUMPY SOLVER
-def get_phase_portrait(initial_condition, dXdt, solve_for, portrait_variables=(0,1), solver=solve_ode, deltat_max=np.inf, method='RK4',
+
+
+def get_phase_portrait(dXdt, init_cond, solve_for, portrait_variables=(0,1), solver=solve_ode, deltat_max=np.inf, method='RK4',
                         time_first=True, solver_args=dict(), t=None, title=None, xlabel=None, ylabel=None, args=()):
     """will solve a system of ODE's and plot their phase portrait. ONLY WORKS IN 2D
     TEST : PRED-PREY"""
@@ -12,22 +13,26 @@ def get_phase_portrait(initial_condition, dXdt, solve_for, portrait_variables=(0
     # REMOVE THIS ONCE RK45 IMPLEMENTED IN SOLVE_ODE
         if method == 'RK4':
             method = 'RK45'
+        sol = solver(dXdt, (0, solve_for[-1]), init_cond, method, solve_for, max_step=deltat_max, **solver_args, args=args)
+        path = sol.y.T
     elif time_first is not True:
-        # only input 
-        solution = solver(dXdt, initial_condition, **solver_args, args=args)
+        # only include dxdt and init_cond as input to allow for flexibility in handleable args
+        path = solver(dXdt, init_cond, **solver_args, args=args)
     else:
-        solution = solver(dXdt, initial_condition, solve_for, deltat_max, method, **solver_args, args=args)
+        if deltat_max == np.inf:
+            deltat_max = 1e-03
+        path = solver(dXdt, init_cond, solve_for, deltat_max, method, **solver_args, args=args)
     
 
-    x = solution[:, portrait_variables[0]]
-    y = solution[:, portrait_variables[1]]
+    x = path[:, portrait_variables[0]]
+    y = path[:, portrait_variables[1]]
     # plot phase portrait
     plt.plot(x, y, color='blue')
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title, fontsize=8)
     plt.show()
-    return solution
+    return path
     # STABLE LIMIT CYCLE -> it has been shown that solutions collapse to a stable equilibrium at b =0.27
 
 
@@ -47,3 +52,5 @@ def isInteger(N):
 def test():
     print('yes')
     return
+
+

@@ -48,7 +48,6 @@ def solve_to(dx_dt, initial_point, deltat_max=0.001, time_interval=[0, 1], metho
 
     current_step = initial_point
     current_time = time_interval[0]
-    start = time.time()
     i = 0
 
     match method:
@@ -60,10 +59,6 @@ def solve_to(dx_dt, initial_point, deltat_max=0.001, time_interval=[0, 1], metho
                 current_time = next_time
                 current_step = next_step
                 i += 1
-                if i == 10**5:
-                    end = time.time()
-                    elapsed = end - start
-                    print(elapsed)
             min_step = time_interval[1] - current_time
             last_step, last_time = euler_step(current_time, dx_dt, current_step, step_size=min_step,
                                     args=args)
