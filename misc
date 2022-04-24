@@ -1,0 +1,14 @@
+def my_function(school, standard, city, name):
+    schoolName  = school
+    cityName = city
+    standardName = standard
+    studentName = name
+    print(schoolName)
+    print(standardName)
+    print(cityName)
+    print(studentName)
+data = {'school':'DAV', 'standard': '7', 'name': 'abc', 'city': 'delhi'}
+
+my_function(**data)
+
+THEREFORE CAN USE DICTIONARY TO PASS ANY AMOUNT OF ARGUEMENTS
