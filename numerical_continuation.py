@@ -1,10 +1,10 @@
 import numpy as np
 from ode import solve_ode
 from scipy.integrate import solve_ivp
-from scipy.optimize import fsolve
+from scipy.optimize import root, fsolve
 
 #TODO add option to set step size for ode solver and to choose different solver
-def find_limit_cycles(init_guess, dXdt, solver=solve_ode, deltat_max=np.inf, method='RK4', time_first=True, solver_args=dict(),
+def find_limit_cycles(dXdt, init_guess, ode_solver=solve_ode, root_solver=None, deltat_max=np.inf, method='RK4', time_first=True, solver_args=dict(),
                       t=None, find_period=True, phase_condition=None, args=()):
     """ will find limit cycles - can input any requested phase_condition
     init guess must have state variables first then guess of period if period is known put known period in
@@ -26,7 +26,7 @@ def find_limit_cycles(init_guess, dXdt, solver=solve_ode, deltat_max=np.inf, met
         
     WHY is my ode solver taking so much longer than theirs"""
 # dont want to use if else inside function definitions
-    if solver == solve_ivp:
+    if ode_solver == solve_ivp:
         # REMOVE THIS ONCE RK45 IMPLEMENTED IN SOLVE_ODE
         if method == 'RK4':
             method = 'RK45'
@@ -34,7 +34,7 @@ def find_limit_cycles(init_guess, dXdt, solver=solve_ode, deltat_max=np.inf, met
         def G(dXdt, init_guess, args):
             X = init_guess[:-1]
             T = init_guess[-1]
-            sol = solver(dXdt, (0, T), X, method, **solver_args, args=args)
+            sol = ode_solver(dXdt, (0, T), X, method, max_step=deltat_max,**solver_args, args=args)
             trajectory_T = sol.y
             terminal_T = trajectory_T[:, -1]
             G = X - terminal_T
@@ -44,7 +44,7 @@ def find_limit_cycles(init_guess, dXdt, solver=solve_ode, deltat_max=np.inf, met
         def G(dXdt, init_guess, args):
             X = init_guess[:-1]
             T = init_guess[-1]
-            trajectory_T = solver(dXdt, X, solve_for=[0, T], args=args)
+            trajectory_T = ode_solver(dXdt, X, solve_for=[0, T], args=args)
             terminal_T = trajectory_T[:,-1]
             G = X - terminal_T
             return G
@@ -56,7 +56,7 @@ def find_limit_cycles(init_guess, dXdt, solver=solve_ode, deltat_max=np.inf, met
         def G(dXdt, init_guess, args):
             X = init_guess[:-1]
             T = init_guess[-1]
-            trajectory_T = solver(dXdt, X, [0, T], deltat_max, method, **solver_args, args=args)
+            trajectory_T = ode_solver(dXdt, X, [0, T], deltat_max, method, **solver_args, args=args)
             terminal_T = trajectory_T[-1,:]
             G = X - terminal_T
             return G
@@ -72,11 +72,22 @@ def find_limit_cycles(init_guess, dXdt, solver=solve_ode, deltat_max=np.inf, met
             return X_dot[0]  # will only work for the variable that is oscillating
 
 
-    def root_finding_problem(init_guess, G, phase_condition, t, dXdt,  args):
+    def root_finding_problem(init_guess, G, phase_condition, dXdt,  args):
         sol = np.zeros(init_guess.shape)
         sol[:-1] = G(dXdt, init_guess, args)
         sol[-1] = phase_condition(init_guess[:-1], dXdt, args)
         return sol    
 
-    roots = fsolve(root_finding_problem, init_guess, args=(G, phase_condition, t,dXdt, args))
-    return roots
+    if root_solver == None:
+        sol = root(root_finding_problem, init_guess, args=(G, phase_condition, dXdt, args))
+        if sol.success:
+            return sol.x
+        else:
+            sol = root(root_finding_problem, init_guess, method='lm', args=(G, phase_condition, t,dXdt, args))
+            if sol.success:
+                return sol.x
+            else:
+                print('root solver has failed to converge to a valid solution... try a different solver')
+    else:
+        roots = root_solver(root_finding_problem, init_guess, args(G, phase_condition, dXdt, args))
+

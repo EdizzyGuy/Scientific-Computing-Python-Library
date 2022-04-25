@@ -6,7 +6,7 @@ sys.path.append(origin)
 
 import unittest
 import numpy as np
-from numerical_continuation import find_limit_cycles
+from new_shooting import find_limit_cycles
 from scipy.integrate import solve_ivp
 
 PI = np.pi
@@ -42,7 +42,7 @@ class TestShootingMethods(unittest.TestCase):
     # where this is a valid solution
     def test_shooting_hopf_mySolver(self):
         beta, sigma = 2,-1
-        args = (beta, sigma)
+        atol, rtol = 1e-2, 1e-2
         # from analytical solution
         anal_period = 2* PI
         anal_radius = np.sqrt(beta)
@@ -53,19 +53,18 @@ class TestShootingMethods(unittest.TestCase):
         #changed oeriod guess from normal distribution to uniform as sometimes period guess would converge to sol of T=0
         init_guess = np.concatenate((init_cond, period_guess))
 
-        roots = find_limit_cycles(init_guess, hopf_bifurcation, args=(beta, sigma))
-        num_period = roots[-1]
-        num_radius = np.linalg.norm(roots[:-1])
+        roots = find_limit_cycles(hopf_bifurcation, init_guess, args=(beta, sigma))
+        numer_period = roots[-1]
+        numer_radius = np.linalg.norm(roots[:-1])
 
         # check if period is a multiple of the analytical sol
-        period_multiplicity = num_period / anal_period
-        period_multiple = np.isclose(period_multiplicity % 1, 1) or np.isclose(period_multiplicity % 1, 0)
-        self.assertTrue(period_multiple and np.isclose(anal_radius, num_radius))
+        period_multiplicity = numer_period / anal_period
+        period_multiple = np.isclose(period_multiplicity % 1, 1, atol=atol) or np.isclose(period_multiplicity % 1, 0, atol=atol)
+        self.assertTrue(period_multiple and np.isclose(anal_radius, numer_radius, rtol=rtol))
 
     def test_shooting_hopf_scipySolver(self):
         beta, sigma = 2,-1
-        args = (beta, sigma)
-        atol=1e-2
+        atol, rtol = 1e-2, 1e-2
         # from analytical solution
         anal_period = 2* PI
         anal_radius = np.sqrt(beta)
@@ -76,14 +75,14 @@ class TestShootingMethods(unittest.TestCase):
         #changed oeriod guess from normal distribution to uniform as sometimes period guess would converge to sol of T=0
         init_guess = np.concatenate((init_cond, period_guess))
 
-        roots = find_limit_cycles(init_guess, hopf_bifurcation, solver=solve_ivp, args=(beta, sigma))
-        num_period = roots[-1]
-        num_radius = np.linalg.norm(roots[:-1])
+        roots = find_limit_cycles(hopf_bifurcation, init_guess, solve_ivp, args=(beta, sigma))
+        numer_period = roots[-1]
+        numer_radius = np.linalg.norm(roots[:-1])
 
         # check if period is a multiple of the analytical sol
-        period_multiplicity = num_period / anal_period
+        period_multiplicity = numer_period / anal_period
         period_multiple = np.isclose(period_multiplicity % 1, 1, atol=atol) or np.isclose(period_multiplicity % 1, 0, atol=atol)
-        self.assertTrue(period_multiple and np.isclose(anal_radius, num_radius, atol=1e-02))
+        self.assertTrue(period_multiple and np.isclose(anal_radius, numer_radius, rtol=rtol))
 
     # for array([1.41421356e+00, 1.51976157e-12, 3.71683338e-45, 1.06814150e+02])) solver cannot solve the
     # ode (maybe a stiff problem) - solutions go out of the unit circle. this may be causing it to evaluate
@@ -93,8 +92,7 @@ class TestShootingMethods(unittest.TestCase):
     # MADE INIT COND FIXED UNTIL PROPERLY WORKING
     def test_shooting_hopf_ext_mySolver(self):
         beta, sigma = 2,-1
-        atol = 1e-02
-        args = (beta, sigma)
+        atol, rtol = 1e-2, 1e-2
         # from analytical solution
         anal_period = 2* PI
         anal_radius = np.sqrt(beta)
@@ -105,7 +103,7 @@ class TestShootingMethods(unittest.TestCase):
         #changed period guess from normal distribution to uniform as sometimes period guess would converge to sol of T=0
         init_guess = np.concatenate((init_cond, period_guess))
 
-        roots = find_limit_cycles(init_guess, hopf_extended, args=(beta, sigma))
+        roots = find_limit_cycles(hopf_extended, init_guess, args=(beta, sigma))
         numer_period = roots[-1]
         numer_radius = np.linalg.norm(roots[:-1])
 
@@ -113,12 +111,11 @@ class TestShootingMethods(unittest.TestCase):
         period_multiplicity = numer_period / anal_period
         period_multiple = np.isclose(period_multiplicity % 1, 1, atol=atol) or np.isclose(period_multiplicity % 1, 0, atol=atol)
 
-        self.assertTrue(period_multiple and np.isclose(anal_radius, numer_radius, atol=atol))
+        self.assertTrue(period_multiple and np.isclose(anal_radius, numer_radius, rtol=rtol))
 
     def test_shooting_hopf_ext_scipySolver(self):
         beta, sigma = 2,-1
-        args = (beta, sigma)
-        atol=1e-2
+        atol, rtol = 1e-2, 1e-2
         # from analytical solution
         anal_period = 2* PI
         anal_radius = np.sqrt(beta)
@@ -129,7 +126,7 @@ class TestShootingMethods(unittest.TestCase):
         #changed period guess from normal distribution to uniform as sometimes period guess would converge to sol of T=0
         init_guess = np.concatenate((init_cond, period_guess))
 
-        roots = find_limit_cycles(init_guess, hopf_extended, solve_ivp, args=(beta, sigma))
+        roots = find_limit_cycles(hopf_extended, init_guess, solve_ivp, args=(beta, sigma))
         numer_period = roots[-1]
         numer_radius = np.linalg.norm(roots[:-1])
 
@@ -137,7 +134,7 @@ class TestShootingMethods(unittest.TestCase):
         period_multiplicity = numer_period / anal_period
         period_multiple = np.isclose(period_multiplicity % 1, 1, atol=atol) or np.isclose(period_multiplicity % 1, 0, atol=atol)
 
-        self.assertTrue(period_multiple and np.isclose(anal_radius, numer_radius, atol=atol))
+        self.assertTrue(period_multiple and np.isclose(anal_radius, numer_radius, rtol=rtol))
 
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@ from scipy.integrate import solve_ivp
 # MAKE THIS WORK WITH NUMPY SOLVER
 
 
-def get_phase_portrait(dXdt, init_cond, solve_for, portrait_variables=(0,1), solver=solve_ode, deltat_max=np.inf, method='RK4',
+def get_phase_portrait(dXdt, init_cond, solve_for, solver=solve_ode, portrait_variables=(0,1), deltat_max=np.inf, method='RK4',
                         time_first=True, solver_args=dict(), t=None, title=None, xlabel=None, ylabel=None, args=()):
     """will solve a system of ODE's and plot their phase portrait. ONLY WORKS IN 2D
     TEST : PRED-PREY"""
@@ -32,6 +32,7 @@ def get_phase_portrait(dXdt, init_cond, solve_for, portrait_variables=(0,1), sol
     plt.ylabel(ylabel)
     plt.title(title, fontsize=8)
     plt.show()
+    
     return path
     # STABLE LIMIT CYCLE -> it has been shown that solutions collapse to a stable equilibrium at b =0.27
 

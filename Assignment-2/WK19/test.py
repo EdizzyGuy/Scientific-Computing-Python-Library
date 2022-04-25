@@ -1,15 +1,13 @@
 import numpy as np
 from scipy.optimize import root
 import matplotlib.pyplot as plt
-from sympy import FunctionMatrix
+from scipy.integrate import solve_ivp
 from numerical_continuation import find_limit_cycles
 from utility import get_phase_portrait
 
 # find when cubic = 0 for c varying from -2, 2
 def cubic(x, c):
     return x**3 - x + c
-def cubic_coef(c):
-    return [c, -1, 0, 1]
 
 # vary beta between 0 and 2
 def hopf_bifurcation(t, U, beta):
@@ -110,8 +108,21 @@ solve_for = np.linspace(0, 40, 400)
 BETA = np.linspace(0, 2, 5)
 for beta in BETA:
     print(beta)
-    path = get_phase_portrait(hopf_bifurcation, init_cond, solve_for, args=(beta,))
+    path = get_phase_portrait(hopf_bifurcation, init_cond, solve_for, solve_ivp, args=(beta,))
 
 #always exhibits a stable limit cycle with increasing radius as beta increases
-BETA = 
+# lower beta values take longer to reach limit cycle
+BETA_forw = np.linspace(0, 2, 100)
+BETA_back = np.flip(BETA_forw)
+#perform forward pass
+init_guess = np.append(init_cond, 10)
+for beta in BETA_forw:
+    roots = find_limit_cycles(hopf_bifurcation, init_guess, solve_ivp, args=(2,))
+
+# TESTED FOR ROOTSOLVERS THAT MIGHT BE BETTER THAN DEFAULT
+#-BETTER 'lm'(didni get period)
+#-krylov quick but wrong
+# broyden1 takes long NO WORK
+# broyden2 takes TOO long 
+#-NO WORK 'df-sane' takes long
 

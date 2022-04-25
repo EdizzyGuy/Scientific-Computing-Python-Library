@@ -3,6 +3,24 @@
 import numpy as np
 import time
 
+def hopf_bifurcation(t, U, beta, sigma):
+    u1 = U[0]
+    u2 = U[1]
+
+    u1_dot = beta*u1 - u2 + sigma *u1 *(u1*u1 + u2*u2)
+    u2_dot = u1 + beta*u2 + sigma *u2 *(u1*u1 + u2*u2)
+    U_dot = np.array([u1_dot, u2_dot])
+    return U_dot
+
+def hopf_extended(t, U, beta=2, sigma=-1):
+    t = None
+
+    U_dot = np.zeros(3)
+    U_dot[:-1] = hopf_bifurcation(t, U[:-1], beta, sigma)
+    U_dot[-1] = - U[-1]
+
+    return U_dot
+
 # NOW WORKING WITH PARAMETERS
 # CHECK WITH PRED-PREY EQ
 
@@ -48,7 +66,6 @@ def solve_to(dx_dt, initial_point, deltat_max=0.001, time_interval=[0, 1], metho
 
     current_step = initial_point
     current_time = time_interval[0]
-    i = 0
 
     match method:
         case 'Euler':
@@ -58,7 +75,6 @@ def solve_to(dx_dt, initial_point, deltat_max=0.001, time_interval=[0, 1], metho
 
                 current_time = next_time
                 current_step = next_step
-                i += 1
             min_step = time_interval[1] - current_time
             last_step, last_time = euler_step(current_time, dx_dt, current_step, step_size=min_step,
                                     args=args)
