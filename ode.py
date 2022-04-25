@@ -25,32 +25,32 @@ def hopf_extended(t, U, beta=2, sigma=-1):
 # CHECK WITH PRED-PREY EQ
 
 
-def euler_step(t, dx_dt, initial_point, step_size, args):
+def euler_step(t, dx_dt, init_point, step_size, args):
     """ Will implement an euler step given the derivative of a system of equations (dx_dt)
     an initial point and a step size """
-    increment = dx_dt(t, initial_point, *args) * step_size
+    increment = dx_dt(t, init_point, *args) * step_size
 
-    new_point = initial_point + increment
+    new_point = init_point + increment
     new_time = t + step_size
     return new_point, new_time
 
 
-def RK4_step(t, dx_dt, initial_point, step_size, args):
+def RK4_step(t, dx_dt, init_point, step_size, args):
     """ Will implement an increment in the independent variable of size step_size and find
     new value of dependent variable based on derivative of a system of equations (dx_dt)
     using the classic Runge-Kutta """
 # initialise values of k
-    k1 = dx_dt(t, initial_point, *args)
-    k2 = dx_dt(t + step_size/2, initial_point + k1* step_size/2, *args)
-    k3 = dx_dt(t + step_size/2, initial_point + k2 *step_size/2, *args)
-    k4 = dx_dt(t + step_size, initial_point + k3 *step_size, *args)
+    k1 = dx_dt(t, init_point, *args)
+    k2 = dx_dt(t + step_size/2, init_point + k1* step_size/2, *args)
+    k3 = dx_dt(t + step_size/2, init_point + k2 *step_size/2, *args)
+    k4 = dx_dt(t + step_size, init_point + k3 *step_size, *args)
 
-    new_point = initial_point + step_size/6 *(k1 +2*k2 + 2*k3 + k4)
+    new_point = init_point + step_size/6 *(k1 +2*k2 + 2*k3 + k4)
     new_time = t + step_size
     return new_point, new_time
 
 
-def solve_to(dx_dt, initial_point, deltat_max=0.001, time_interval=[0, 1], method='RK4', args=()):
+def solve_to(dx_dt, init_point, deltat_max=0.001, time_interval=[0, 1], method='RK4', args=()):
     """ Function will use a valid method to solve a system of equations characterised by dx_dt
     with a maximum step size between subsequent x being deltat_max.
     Will solve ODE from time_interval[START, FINISH], where start is taken as argument in case the dynamical
@@ -64,7 +64,7 @@ def solve_to(dx_dt, initial_point, deltat_max=0.001, time_interval=[0, 1], metho
         # ALSO MAKE IT BREAK THE FUNCTION AND SUPERCEEDING FUNCTIONS
         pass
 
-    current_step = initial_point
+    current_step = init_point
     current_time = time_interval[0]
 
     match method:
@@ -93,7 +93,7 @@ def solve_to(dx_dt, initial_point, deltat_max=0.001, time_interval=[0, 1], metho
     return last_step, last_time
 
 
-def solve_ode(dx_dt, initial_condition, solve_for=np.linspace(0,10,100), deltat_max=0.001, method='RK4', args=()):
+def solve_ode(dx_dt, init_cond, solve_for=np.linspace(0,10,100), deltat_max=0.001, method='RK4', args=()):
     """ This function will solve a system of differential equations characterised by dx_dt, with a given initial
     condition. Can use either 'RK4' or 'Euler' as a method of integration, and will implement these methods with the
     time step defined as deltat_max. Function will solve for all values of time inside the array 'solve_for'
@@ -102,11 +102,11 @@ def solve_ode(dx_dt, initial_condition, solve_for=np.linspace(0,10,100), deltat_
     When indexing the output first index will give a time point and second will give the corresponding variable of the
     system of equations at that time point. Time points are mapped from the solve_for array
     """
-    x = np.zeros(shape=(len(solve_for), initial_condition.size))
-    x[0, :] = initial_condition
+    x = np.zeros(shape=(len(solve_for), init_cond.size))
+    x[0, :] = init_cond
 
     for i in range(len(solve_for) - 1):
-        initial_condition = x[i, :]
+        init_cond = x[i, :]
         time_interval = [solve_for[i], solve_for[i + 1]]
-        x[i+1, :], current_time = solve_to(dx_dt, initial_condition, deltat_max, time_interval, method, args)
+        x[i+1, :], current_time = solve_to(dx_dt, init_cond, deltat_max, time_interval, method, args)
     return x
