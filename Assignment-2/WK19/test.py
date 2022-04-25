@@ -1,3 +1,9 @@
+import sys
+import os
+path = sys.path[0]
+origin = os.path.dirname(os.path.dirname(path))
+sys.path.append(origin)
+
 import numpy as np
 from scipy.optimize import root
 import matplotlib.pyplot as plt
@@ -29,100 +35,87 @@ def modified_hopf(t, U, beta):
     U_dot = np.array([u1_dot, u2_dot])
     return U_dot
 
-# Q1
-#   Write a code that performs natural parameter continuation, i.e., it simply increments 
-# the a parameter by a set amount and attempts to find the solution for the new parameter value 
-# using the last found solution as an initial guess.
-
-# Q2
-#   Write a code that performs pseudo-arclength continuation
-
-#-----------------------------------------------------------------
-# NATURAL PARAMETER CONTINUATION FOR CUBIC
-# TODO make graphs on top of each other
-fig = plt.figure(figsize=(10,6), dpi=100)
-ax1 = plt.subplot(1,2,1)
-
-C_forw = np.linspace(-2, 2, 100)
-num_real_roots = []
-for c in C_forw:
-    roots = np.roots([c, -1, 0, 1])
-    real_roots = 0
-    for im in roots.imag:
-        if im == 0:
-            real_roots += 1
-    num_real_roots.append(real_roots)
-plt.plot(C_forw, num_real_roots)
-
-plt.xlabel('parameter of cubic : c')
-plt.ylabel('Number of real solution to cubic')
-plt.title('Number of real solutions to $x^3 - x + c$\nw.r.t c')
-
-ax2 = plt.subplot(1,2,2)
-cubic_roots_forw = []
-init_guess = 2
-for c in C_forw:
-    y = root(cubic, init_guess, args=(c))
-    if y.success == True:
-        cubic_roots_forw.append(y.x)
-        init_guess = y.x
-    else:
-        cubic_roots_forw.append(None)
-plt.plot(C_forw, cubic_roots_forw, color='blue')
-
-init_guess = 0
-cubic_roots_mid = []
-for c in C_forw:
-    y = root(cubic, init_guess, args=(c))
-    if y.success == True:
-        cubic_roots_mid.append(y.x)
-        init_guess = y.x
-    else:
-        cubic_roots_mid.append(None)
-plt.plot(C_forw, cubic_roots_mid, color='blue')
-
-C_back = np.flip(C_forw)
-init_guess = -2
-cubic_roots_back = []
-for c in C_back:
-    y = root(cubic, init_guess, args=(c))
-    if y.success == True:
-        cubic_roots_back.append(y.x)
-        init_guess = y.x
-    else:
-        cubic_roots_back.append(None)
-plt.plot(C_back, cubic_roots_back, color='blue')
- 
-plt.xlabel('parameter of cubic : c')
-plt.ylabel('Real solution to cubic')
-plt.title('Real solutions to $x^3 - x + c$\nw.r.t c')
-plt.show()
-
-#--------------------------------------------------------------------
-# NATURAL PARAMETER CONTINUATION FOR HOPF BIFURCATION
-# can plot radius of the limit cycles
-
-# investigate properties of function
-init_cond = np.array([1,1])
-solve_for = np.linspace(0, 40, 400)
-BETA = np.linspace(0, 2, 5)
-for beta in BETA:
-    print(beta)
-    path = get_phase_portrait(hopf_bifurcation, init_cond, solve_for, solve_ivp, args=(beta,))
-
 #always exhibits a stable limit cycle with increasing radius as beta increases
 # lower beta values take longer to reach limit cycle
 BETA_forw = np.linspace(0, 2, 100)
-BETA_back = np.flip(BETA_forw)
-#perform forward pass
-init_guess = np.append(init_cond, 10)
-for beta in BETA_forw:
-    roots = find_limit_cycles(hopf_bifurcation, init_guess, solve_ivp, args=(2,))
+rad_forw = np.zeros(BETA_forw.shape)
+sol_forw = []
 
-# TESTED FOR ROOTSOLVERS THAT MIGHT BE BETTER THAN DEFAULT
-#-BETTER 'lm'(didni get period)
-#-krylov quick but wrong
-# broyden1 takes long NO WORK
-# broyden2 takes TOO long 
-#-NO WORK 'df-sane' takes long
+BETA_back = np.flip(BETA_forw)
+rad_back = np.zeros(BETA_back.shape)
+sol_back = []
+#perform forward pass
+init_cond = np.array([1,1])
+init_guess = np.append(init_cond, 10)
+for i, beta in enumerate(BETA_forw):
+    if i % 10 == 0:
+        print(i)
+    roots = find_limit_cycles(hopf_bifurcation, init_guess, solve_ivp, args=(beta,))
+    if isinstance(roots, np.ndarray):
+        init_guess = roots
+        sol_forw.append(roots)
+        rad_forw[i] = np.linalg.norm(init_guess[:-1])
+    else:
+        rad_forw[i] = None
+        sol_forw.append(None)
+plt.plot(BETA_forw, rad_forw, color='blue')
+
+init_guess = np.append(init_cond, 10)
+# back pass takes longer
+for i, beta in enumerate(BETA_back):
+    if i % 10 == 0:
+        print(i)
+    roots = find_limit_cycles(hopf_bifurcation, init_guess, solve_ivp, args=(beta,))
+    if isinstance(roots, np.ndarray): 
+        init_guess = roots
+        sol_back.append(roots)
+        rad_back[i] = np.linalg.norm(init_guess[:-1])
+    else:
+        rad_back[i] = None
+        sol_back.append(None)
+plt.plot(BETA_back, rad_back, color='blue')
+
+# when doing forward pass solutions move to stable equilibria at origin
+# also is finding solutions backwards in time!
+# from inspecting phase portraits and adjusting time it is solved for it is clear
+# that these forward passes are identifying unstable equilibria
+# solutions found are indeed valid... on inspection can see each iterative solution collapsing
+# into the unstable equilibria
+# until 4th sol solutions are exhibiting limit cycles (the last valid solution did not find the
+# correct period although this is probably because of tolerance (orbital trajectory is so small
+# that almost anywhere on the solution would satisfy function G))  
+i += 1
+roots = sol_forw[i]
+solve_for = np.linspace(0, roots[-1], 100)
+path = get_phase_portrait(hopf_bifurcation, roots[:-1], solve_for, solve_ivp, args=(BETA_forw[i],))
+
+#plot unstable in red and stable in blue
+for i, sol in enumerate(sol_back):
+    if i % 5 == 0:
+        print(f'Beta : {BETA_back[i]}, rad: {rad_back[i]}')
+        solve_for = np.linspace(0, 100, 100)
+        path = get_phase_portrait(hopf_bifurcation, sol[:-1], solve_for, solve_ivp, args=(BETA_back[i],))
+
+# forw sol quickly degenerate
+for i, sol in enumerate(sol_forw):
+    if i % 5 == 0:
+        print(f'Beta : {BETA_forw[i]}, rad: {rad_forw[i]}')
+        solve_for = np.linspace(0, 100, 100)
+        path = get_phase_portrait(hopf_bifurcation, sol[:-1], solve_for, solve_ivp, args=(BETA_forw[i],))
+
+# DO THESE SOLUTIONS REACH UNSTABLE EQUILIBRIA DUE TO NUMERICAL ISSUES
+#is it technically an unstable equilibiria
+for i, sol in enumerate(sol_forw[:10]):
+    print(f'Beta : {BETA_forw[i]}, rad: {rad_forw[i]}')
+    solve_for = np.linspace(0, 100, 100)
+    path = get_phase_portrait(hopf_bifurcation, sol[:-1], solve_for, solve_ivp, args=(BETA_forw[i],))
+
+plt.plot(BETA_forw, rad_forw, color='red', label='Equilibrium')
+plt.plot(BETA_back, rad_back, color='blue', label='Stable limit cycle')
+
+plt.xlabel('Parameter : Beta')
+plt.ylabel('Radius of orbit')
+plt.title('Stable states of the hopf bifurcation w.r.t changing parameter')
+plt.legend()
+plt.show()
 

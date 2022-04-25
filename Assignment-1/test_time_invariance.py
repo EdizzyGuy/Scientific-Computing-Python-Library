@@ -1,4 +1,4 @@
-'''solve_ode can solve time invariant systems of ode's although it should be noted that init time is implicitly defined as solve_for[0]
+'''solve_ode can solve time variant systems of ode's although it should be noted that init time is implicitly defined as solve_for[0]
 ADD FUNCTIONALITY TO SPECIFY INITIAL TIME THAT IS DIFFERENT THAN SOLVE_FOR[0]
 '''
 

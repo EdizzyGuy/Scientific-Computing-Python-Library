@@ -6,7 +6,7 @@ sys.path.append(origin)
 
 import unittest
 import numpy as np
-from new_shooting import find_limit_cycles
+from numerical_continuation import find_limit_cycles
 from scipy.integrate import solve_ivp
 
 PI = np.pi

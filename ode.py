@@ -59,10 +59,7 @@ def solve_to(dx_dt, init_point, deltat_max=0.001, time_interval=[0, 1], method='
 # MAKE USER UNABLE TO ENTER ANY OTHER METHOD THAN A VALID ONE
 # TEST test to check if steps sum to time interval
     valid_methods = ['Euler', 'RK4']
-    if method not in valid_methods:
-        # WHAT ERROR SHOULD I RAISE
-        # ALSO MAKE IT BREAK THE FUNCTION AND SUPERCEEDING FUNCTIONS
-        pass
+    assert method in valid_methods, '1 step integration method supplied is not valid'
 
     current_step = init_point
     current_time = time_interval[0]
