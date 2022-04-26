@@ -5,10 +5,15 @@ from scipy.integrate import solve_ivp
 # MAKE THIS WORK WITH NUMPY SOLVER
 
 
-def get_phase_portrait(dXdt, init_cond, solve_for, solver=solve_ode, portrait_variables=(0,1), deltat_max=np.inf, method='RK4',
-                        time_first=True, solver_args=dict(), t=None, title=None, xlabel=None, ylabel=None, args=()):
+def get_phase_portrait(dXdt, init_cond, solve_for, solver=solve_ode, title=None, xlabel=None, ylabel=None, portrait_variables=(0,1), title_size=11, centre_spines=True,
+                       deltat_max=np.inf, method='RK4', time_first=True, solver_args=dict(), t=None, args=()):
     """will solve a system of ODE's and plot their phase portrait. ONLY WORKS IN 2D
     TEST : PRED-PREY"""
+    if xlabel is None and ylabel is None:
+        xlabel=r'$\mathbf{u_1}$'
+        ylabel=r'$\mathbf{u_2}$'
+
+
     if solver == solve_ivp:
     # REMOVE THIS ONCE RK45 IMPLEMENTED IN SOLVE_ODE
         if method == 'RK4':
@@ -26,11 +31,20 @@ def get_phase_portrait(dXdt, init_cond, solve_for, solver=solve_ode, portrait_va
 
     x = path[:, portrait_variables[0]]
     y = path[:, portrait_variables[1]]
+
+    plt.figure(figsize=(8,6), dpi=100)
+    ax = plt.subplot(111)
     # plot phase portrait
     plt.plot(x, y, color='blue')
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.title(title, fontsize=8)
+
+    if centre_spines:
+        plt.axhline(color='black', lw=1)
+        plt.axvline(color='black', lw=1)
+
+    ax.set_xlabel(xlabel, va='center', ha='center')
+    ax.set_ylabel(ylabel, rotation=0, va='bottom', ha='center')
+    ax.set_title(title, fontsize=title_size)
+    plt.grid()
     plt.show()
     
     return path
