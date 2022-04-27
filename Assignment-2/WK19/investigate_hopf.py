@@ -10,10 +10,6 @@ from scipy.integrate import solve_ivp
 from numerical_continuation import find_limit_cycles
 from utility import get_phase_portrait
 
-# find when cubic = 0 for c varying from -2, 2
-def cubic(x, c):
-    return x**3 - x + c
-
 # vary beta between 0 and 2
 def hopf_bifurcation(t, U, beta):
     u1 = U[0]
@@ -24,16 +20,13 @@ def hopf_bifurcation(t, U, beta):
     U_dot = np.array([u1_dot, u2_dot])
     return U_dot
 
-# vary beta between -1 and 2 (start at 2)
-def modified_hopf(t, U, beta):
-    u1 = U[0]
-    u2 = U[1]
-
-    u1_dot = beta*u1 - u2 + u1 *(u1*u1 + u2*u2) - u1* (u1**2 + u2**2)**2
-    u2_dot = u1 + beta*u2 + u2 *(u1*u1 + u2*u2) - u2* (u1**2 + u2**2)**2
-    U_dot = np.array([u1_dot, u2_dot])
-    return U_dot
-
+# investigate properties of function
+init_cond = np.array([1,1])
+solve_for = np.linspace(0, 40, 400)
+BETA = np.linspace(0, 2, 5)
+for beta in BETA:
+    print(beta)
+    path = get_phase_portrait(hopf_bifurcation, init_cond, solve_for, solve_ivp, args=(beta,))
 #always exhibits a stable limit cycle with increasing radius as beta increases
 # lower beta values take longer to reach limit cycle
 BETA_forw = np.linspace(0, 2, 100)
@@ -90,6 +83,7 @@ roots = sol_forw[i]
 solve_for = np.linspace(0, roots[-1], 100)
 title = 'Showcasing potentially unstable equilibria at origin of hopf bifurcation\n' fr'$\beta$ : {BETA_forw[i]:.2f}'
 path = get_phase_portrait(hopf_bifurcation, roots[:-1], solve_for, solve_ivp, title, args=(BETA_forw[i],))
+
 plt.close()
 
 #plot unstable in red and stable in blue

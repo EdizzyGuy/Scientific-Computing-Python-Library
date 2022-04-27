@@ -61,9 +61,9 @@ path = get_phase_portrait(modified_hopf, roots[:-1], np.logspace(0, 1, 100), tit
 #test behaviour near origin
 origin =np.array([1e-06, 1e-06])
 #solve_ode works backwards in time
-path = get_phase_portrait(modified_hopf, origin, np.linspace(0, 10, 100), title='Trajectory of solution starting ~ at origin', args=(2,))
+path = get_phase_portrait(modified_hopf, origin, np.linspace(0, 10, 100), title='Trajectory of solution starting at ~ origin', args=(2,))
 # speed that trajectory reaches limit cycle inversely proportional to beta
-path = get_phase_portrait(modified_hopf, origin*2e06, np.linspace(1, 100, 100), title='Trajectory of solution starting ~ at origin', args=(0,))
+path = get_phase_portrait(modified_hopf, origin*2e06, np.linspace(1, 100, 100), title='Trajectory of solution starting at ~ origin', args=(0,))
 #encounters run time errors when starting pos is > [4.9,4.9]
 #also changes from moving towards limit cycle at r = 1 to limit cycle r=(wherever it starts)
 
