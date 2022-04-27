@@ -1,8 +1,6 @@
 #%%
 import sys
 import os
-
-from ode import hopf_extended
 origin = r'C:\\Users\\Ediz\\Documents\\uni stuff\\Scientific Computing\Assignment\\ld18821-emat30008'
 sys.path.append(origin)
 
@@ -67,7 +65,7 @@ def natural_parameter_continuation(dXdt, init_guess, param_range=[0,1], root_sol
     
 #%%
 # TEST CUBIC ------------------------------------------------------------
-init_guess = 2
+init_guess = np.array([2])
 param_range = [-2, 2]
 # forward pass
 sol_forw, params_forw = natural_parameter_continuation(cubic, init_guess, param_range)
