@@ -71,11 +71,11 @@ param_range = [-2, 2]
 sol_forw, params_forw = natural_parameter_continuation(cubic, init_guess, param_range)
 plt.plot(params_forw, sol_forw, color='blue')
 # mid pass
-mid_guess = 0
+mid_guess = np.array([0])
 sol_mid, params_mid = natural_parameter_continuation(cubic, mid_guess, param_range)
 plt.plot(params_mid, sol_mid, color='blue')
 #back pass
-back_guess = -2
+back_guess = np.array([-2])
 param_range= [2,-2]
 sol_back, params_back = natural_parameter_continuation(cubic, back_guess, param_range)
 plt.plot(params_back, sol_back, color='blue')
@@ -102,7 +102,7 @@ plt.plot(params_forw, rad_forw, color='red', label='Equilibrium')
 plt.plot(params_back, rad_back, color='blue', label='Stable limit cycle')
 plt.xlabel('Parameter : Beta')
 plt.ylabel('Radius of orbit')
-plt.title('Stable states of the hopf bifurcation w.r.t changing parameter')
+plt.title('Stable states of the norm hopf bifurcation w.r.t changing parameter')
 plt.legend()
 plt.show()
 
@@ -125,7 +125,7 @@ plt.plot(params_back, rad_back, color='blue', label='backward pass')
 
 plt.xlabel(r'Parameter : $\beta$')
 plt.ylabel('Radius of orbit')
-plt.title('Stable states of the hopf bifurcation w.r.t changing parameter')
+plt.title('Stable states of the mod. hopf bifurcation w.r.t changing parameter')
 plt.legend()
 plt.grid()
 plt.show()
