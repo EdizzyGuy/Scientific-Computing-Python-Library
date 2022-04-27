@@ -1,7 +1,7 @@
+#%%
 import sys
 import os
-path = sys.path[0]
-origin = os.path.dirname(os.path.dirname(path))
+origin = r'C:\\Users\\Ediz\\Documents\\uni stuff\\Scientific Computing\Assignment\\ld18821-emat30008'
 sys.path.append(origin)
 
 import numpy as np
@@ -43,6 +43,7 @@ def modified_hopf(t, U, beta):
 # Q2
 #   Write a code that performs pseudo-arclength continuation
 
+#%%
 #-----------------------------------------------------------------
 # NATURAL PARAMETER CONTINUATION FOR CUBIC
 # TODO make graphs on top of each other
@@ -68,7 +69,7 @@ ax2 = plt.subplot(1,2,2)
 cubic_roots_forw = []
 init_guess = 2
 for c in C_forw:
-    y = root(cubic, init_guess, args=(c))
+    y = root(cubic, init_guess, args=(c,))
     if y.success == True:
         cubic_roots_forw.append(y.x)
         init_guess = y.x
@@ -79,7 +80,7 @@ plt.plot(C_forw, cubic_roots_forw, color='blue')
 init_guess = 0
 cubic_roots_mid = []
 for c in C_forw:
-    y = root(cubic, init_guess, args=(c))
+    y = root(cubic, init_guess, args=(c,))
     if y.success == True:
         cubic_roots_mid.append(y.x)
         init_guess = y.x
@@ -91,7 +92,7 @@ C_back = np.flip(C_forw)
 init_guess = -2
 cubic_roots_back = []
 for c in C_back:
-    y = root(cubic, init_guess, args=(c))
+    y = root(cubic, init_guess, args=(c,))
     if y.success == True:
         cubic_roots_back.append(y.x)
         init_guess = y.x
@@ -104,6 +105,7 @@ plt.ylabel('Real solution to cubic')
 plt.title('Real solutions to $x^3 - x + c$\nw.r.t c')
 plt.show()
 
+#%%
 #--------------------------------------------------------------------
 # NATURAL PARAMETER CONTINUATION FOR HOPF BIFURCATION
 # can plot radius of the limit cycles
@@ -120,30 +122,48 @@ for beta in BETA:
 # lower beta values take longer to reach limit cycle
 BETA_forw = np.linspace(0, 2, 100)
 rad_forw = np.zeros(BETA_forw.shape)
+sol_forw = []
 
 BETA_back = np.flip(BETA_forw)
 rad_back = np.zeros(BETA_back.shape)
+sol_back = []
 #perform forward pass
+init_cond = np.array([1,1])
 init_guess = np.append(init_cond, 10)
 for i, beta in enumerate(BETA_forw):
     if i % 10 == 0:
         print(i)
     roots = find_limit_cycles(hopf_bifurcation, init_guess, solve_ivp, args=(beta,))
     if isinstance(roots, np.ndarray):
-        init_guess = roots[:-1]
+        init_guess = roots
+        sol_forw.append(roots)
         rad_forw[i] = np.linalg.norm(init_guess[:-1])
     else:
         rad_forw[i] = None
-
+        sol_forw.append(None)
 
 init_guess = np.append(init_cond, 10)
-for i, beta in enumerate(BETA_forw):
+# back pass takes longer
+for i, beta in enumerate(BETA_back):
+    if i % 10 == 0:
+        print(i)
     roots = find_limit_cycles(hopf_bifurcation, init_guess, solve_ivp, args=(beta,))
-    if roots != None:
-        init_guess = roots[:-1]
-        rad_forw[i] = np.linalg.norm(init_guess[:-1])
+    if isinstance(roots, np.ndarray): 
+        init_guess = roots
+        sol_back.append(roots)
+        rad_back[i] = np.linalg.norm(init_guess[:-1])
     else:
-        rad_forw[i] = None        
+        rad_back[i] = None
+        sol_back.append(None)
+
+plt.plot(BETA_forw, rad_forw, color='red', label='Equilibrium')
+plt.plot(BETA_back, rad_back, color='blue', label='Stable limit cycle')
+
+plt.xlabel('Parameter : Beta')
+plt.ylabel('Radius of orbit')
+plt.title('Stable states of the hopf bifurcation w.r.t changing parameter')
+plt.legend()
+plt.show()
 
 # TESTED FOR ROOTSOLVERS THAT MIGHT BE BETTER THAN DEFAULT
 #-BETTER 'lm'(didni get period)
@@ -151,4 +171,104 @@ for i, beta in enumerate(BETA_forw):
 # broyden1 takes long NO WORK
 # broyden2 takes TOO long 
 #-NO WORK 'df-sane' takes long
+
+
+#%%
+#--------------------------------------------------------------------
+# NATURAL PARAMETER CONTINUATION FOR MOD HOPF BIFURCATION NORMAL FORM
+# range beta from -1 to 2 (start : 2)
+# can plot radius of the limit cycles
+
+init_cond = np.array([1,1])
+init_guess = np.append(init_cond, 10)
+
+BETA_back = np.linspace(2, -1, 100)
+rad_back = np.zeros(BETA_back.shape)
+sol_back = []
+
+BETA_forw = np.linspace(-1, 2, 100)
+rad_forw = np.zeros(BETA_forw.shape)
+sol_forw = []
+# this is computationally more difficult
+# limit cycles not found 4 times
+fails = 0
+for i, beta in enumerate(BETA_back):
+    if i % 10 == 0:
+        print(i)
+    roots = find_limit_cycles(modified_hopf, init_guess, solve_ivp, args=(beta,))
+    if isinstance(roots, np.ndarray): 
+        init_guess = roots
+        sol_back.append(roots)
+        rad_back[i] = np.linalg.norm(init_guess[:-1])
+    else:
+        fails += 1
+        rad_back[i] = None
+        sol_back.append(None)
+# fails to find solution 4 times
+
+init_cond = np.array([0,0])
+init_guess = np.append(init_cond, 0)
+for i, beta in enumerate(BETA_forw):
+    if i % 10 == 0:
+        print(i)
+    roots = find_limit_cycles(modified_hopf, init_guess, solve_ivp, args=(beta,))
+    if isinstance(roots, np.ndarray):
+        init_guess = roots
+        sol_forw.append(roots)
+        rad_forw[i] = np.linalg.norm(init_guess[:-1])
+    else:
+        rad_forw[i] = None
+        sol_forw.append(None)
+# just finds 0's
+
+plt.plot(BETA_forw, rad_forw, color='red', label='forward pass')
+plt.plot(BETA_back, rad_back, color='blue', label='backward pass')
+
+plt.xlabel(r'Parameter : $\beta$')
+plt.ylabel('Radius of orbit')
+plt.title('Stable states of the hopf bifurcation w.r.t changing parameter')
+plt.legend()
+plt.grid()
+plt.show()
+# %% 
+# ---------------------------------------------------------------------------------------------
+# Write a code that performs pseudo-arclength continuation
+
+def secant(u2, u1):
+    secant = u2 + (u2 - u1)
+    return secant
+
+# rough implementation of prediction correction approach
+stable_states = []
+
+beta1, beta2 = 2, 1.9
+
+init_cond = np.array([1,1])
+init_guess = np.append(init_cond, (10, beta1)) # append period guess and param value
+u1 = find_limit_cycles(hopf_bifurcation, init_guess[:-1], solve_ivp, args=(init_guess[-1],))
+stable_states.append(np.append(u1, beta1))
+
+sec_guess = np.append(stable_states[0], beta2)
+u2 = find_limit_cycles(hopf_bifurcation, sec_guess[:-1], solve_ivp, args=(sec_guess[-1],))
+stable_states.append(np.append(u2, beta2))
+
+fails = 0
+while stable_states[-1][-1] > -1 and fails < 50: # while beta is bigger than -1
+    secant_prediction = secant(stable_states[-1], stable_states[-2])
+    solution = find_limit_cycles(hopf_bifurcation, secant_prediction[:-1], solve_ivp, args=(secant_prediction[-1],))
+    if isinstance(solution, np.ndarray):
+        state = np.append(solution, secant_prediction[-1])
+        stable_states.append(state)
+    else:
+        fails += 1
+    
+
+stable_states = np.asarray(stable_states)
+rads = np.linalg.norm(stable_states[:,:-2], axis=1)
+betas = stable_states[:,-1]
+plt.plot(betas, rads, color='blue')
+plt.show()
+
+
+#CUBIC EQUATION
 

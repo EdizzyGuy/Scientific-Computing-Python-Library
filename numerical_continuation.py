@@ -25,12 +25,14 @@ def find_limit_cycles(dXdt, init_guess, ode_solver=solve_ode, root_solver=None, 
         fsolve will constantly change start position and therefore the time of initialisation (if function is time variant)
         would be a different problem where t must be included as state variable
         
-    WHY is my ode solver taking so much longer than theirs"""
+    WHY is my ode solver taking so much longer than theirs
+    for root_args must give a list of dictionaries, can pass empty dictS"""
     # default to no extra arguements
     if root_args is None: 
         if root_solver is None:
             root_args = [dict() for i in range(len(root_methods))] 
         else:
+            # TEST PASSING NON CALLABLE FUNCTION
             assert callable(root_solver), 'root solver must be a callable function'
             root_args = dict()
     assert len(root_methods) == len(root_args), 'Each root method must be given a corresponding arguement'
@@ -89,7 +91,7 @@ def find_limit_cycles(dXdt, init_guess, ode_solver=solve_ode, root_solver=None, 
 
     if root_solver == None:
         for i, method in enumerate(root_methods):
-            sol = root(root_finding_problem, init_guess, method=method, **root_args[i])
+            sol = root(root_finding_problem, init_guess, method=method, options=root_args[i])
             if sol.success:
                 return sol.x
         print('root solver has failed to converge to a valid solution... try a different solver/method')

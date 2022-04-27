@@ -125,7 +125,7 @@ for i, sol in enumerate(sol_forw[:10]):
 plt.plot(BETA_forw, rad_forw, color='red', label='Equilibrium')
 plt.plot(BETA_back, rad_back, color='blue', label='Stable limit cycle')
 
-plt.xlabel('Parameter : Beta')
+plt.xlabel(r'Parameter : $\beta$')
 plt.ylabel('Radius of orbit')
 plt.title('Stable states of the hopf bifurcation w.r.t changing parameter')
 plt.legend()
