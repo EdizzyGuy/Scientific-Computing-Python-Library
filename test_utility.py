@@ -14,19 +14,22 @@ class TestStringMethods(unittest.TestCase):
 # TEST FOR HIGHER DIMENSIONAL SYS OF ODES
     def test_get_phase_portrait_mySolver(self):
         # known period of 2*pi THIS IS KINDA TESTING SOLVER AGAIN
+        atol = 1e-02
         init_cond = np.array([0, 1])
         period = 2 *np.pi
         path = get_phase_portrait(dX_dt, init_cond, solve_for=(0, period))
 
-        self.assertTrue(np.all(np.isclose(path[0], path[-1])))
+        self.assertTrue(np.all(np.isclose(path[0], path[-1]), atol=atol))
 
     def test_get_phase_portrait_scipySolver(self):
         # known period of 2*pi THIS IS KINDA TESTING SOLVER AGAIN
+        atol = 1e-02
+
         init_cond = np.array([0, 1])
         period = 2 *np.pi
         path = get_phase_portrait(dX_dt, init_cond, solve_for=(0, period), solver=solve_ivp)
 
-        self.assertTrue(np.all(np.isclose(path[0], path[-1])))
+        self.assertTrue(np.all(np.isclose(path[0], path[-1], atol=atol)))
 
 if __name__ == '__main__':
     unittest.main()

@@ -4,6 +4,7 @@ from scipy.integrate import solve_ivp
 from scipy.optimize import root, fsolve
 
 #TODO add option to set step size for ode solver and to choose different solver
+#TODO # need to get find limit cycles to find equilibria
 def find_limit_cycles(dXdt, init_guess, ode_solver=solve_ode, root_solver=None, root_methods=('hybr', 'lm'), root_args=None,
                       deltat_max=np.inf, int_method='RK4', time_first=True, solver_args=dict(),
                       t=None, find_period=True, phase_condition=None, args=()):

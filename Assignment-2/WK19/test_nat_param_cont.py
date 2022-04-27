@@ -51,7 +51,7 @@ def natural_parameter_continuation(dXdt, init_guess, param_range=[0,1], root_sol
                 init_guess = sol.x
             else:
                 all_roots[i, :] = None
-    else:
+    else: # assumes output is ndarray
 
         for i, param in enumerate(params):
             sol = root_solver(dXdt, init_guess, solve_ivp, args=(param, *args))

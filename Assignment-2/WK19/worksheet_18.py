@@ -108,15 +108,7 @@ plt.show()
 #%%
 #--------------------------------------------------------------------
 # NATURAL PARAMETER CONTINUATION FOR HOPF BIFURCATION
-# can plot radius of the limit cycles
-
-# investigate properties of function
-init_cond = np.array([1,1])
-solve_for = np.linspace(0, 40, 400)
-BETA = np.linspace(0, 2, 5)
-for beta in BETA:
-    print(beta)
-    path = get_phase_portrait(hopf_bifurcation, init_cond, solve_for, solve_ivp, args=(beta,))
+# can plot radius of the limit cycle
 
 #always exhibits a stable limit cycle with increasing radius as beta increases
 # lower beta values take longer to reach limit cycle
