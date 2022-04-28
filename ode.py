@@ -1,5 +1,6 @@
 # FIND A BETTER NAME FOR THIS FILE
 # ADD AN EXTRA METHOD
+# ADD VARIABLE STEP SIZE
 import numpy as np
 import time
 
