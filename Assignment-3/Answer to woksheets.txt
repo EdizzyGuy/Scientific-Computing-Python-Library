@@ -1,0 +1,19 @@
+1
+	solution breaks down for mx greater than 31 starts to predict an exponential growth in solution 
+		(e52 at mx = 33) AT mt=1000
+	increasing amount of timesteps tackles this  -> can go over mx=50 at mt = 10000
+	THESE VALUES EFFECT THE VALUE OF LAMBDA -> stability criterion is that lambda must be less than 0.5
+	kappa (diffusion constant) also effects lambda and can be used to enforce stability
+	T effects the value of delta_t therfore can effect stability
+	L effects delta_x
+	lambda(kappa, delta_x, delta_t)
+	delta_t(mx, L)		delta_t(mx, T)
+	therefore lambda and therefore stability is a function of 
+		(kappa, mx, L, mt, T)
+
+	lamdba(kappa, mx, L, mt, T) : D * T/mt * (mx/L)**2
+	In our case (for L=1, D=1, T=0.5, mt=1000) mx > 31 will break stability criterion and therefore
+	solutions will be incorrect and display exponential growth.
+
+2
+	

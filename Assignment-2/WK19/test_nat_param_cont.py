@@ -11,6 +11,11 @@ from scipy.integrate import solve_ivp
 from numerical_continuation import find_limit_cycles
 from utility import get_phase_portrait
 
+'''
+NATURAL PARAMETER CONTINUATION PRODUCES CORRECT GRAPHS FOR ALL 3
+EXAMPLES GIVEN IN WORKSHEET 18
+'''
+
 # find when cubic = 0 for c varying from -2, 2
 def cubic(x, c):
     return x**3 - x + c

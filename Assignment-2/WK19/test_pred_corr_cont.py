@@ -12,6 +12,14 @@ from scipy.integrate import solve_ivp
 from numerical_continuation import find_limit_cycles
 from utility import get_phase_portrait
 
+'''
+METHODS FOR NUMERCIAL CONTINUATION ONLY WORK IN 1D
+algorithm seems to be really inefficient for the hopf bifurcation
+takes 65 sec for a forw pass and 80s for backward
+
+also doesnt converge for init cond that used to work -> WILL REWRITE THIS
+'''
+
 def cubic(x, c):
     return x**3 - x + c
 
@@ -45,9 +53,7 @@ def within_parameter_range(p, p_range, pass_direction):
     oracle = (np.sign(p_range[-1] - p) == pass_direction)
     return oracle
 
-#METHODS FOR NUMERCIAL CONTINUATION ONLY WORK IN 1D
-#algorithm seems to be really inefficient for the hopf bifurcation
-# takes 65 sec for a forw pass and 80s for
+
 def prediction_correction_parameter_continuation(dXdt, init_guess, param_range=[0,1], root_solver=root,
         init_delta_param=0.01, solver_object_output=False, args=()):
     
@@ -203,3 +209,5 @@ plt.ylabel('Radius of orbit')
 plt.title('Stable states of the norm hopf bifurcation w.r.t changing parameter')
 plt.legend()
 plt.show()
+
+# %%
