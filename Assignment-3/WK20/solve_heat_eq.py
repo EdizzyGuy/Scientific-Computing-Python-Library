@@ -43,7 +43,7 @@ def forw_eul_pde_step(u_j, lmbda, mx):
 
     return u_jp1
 
-def forw_eul_heat_eq(t, x, u_I, kappa, method='Matrix'):
+def forw_eul_heat_eq(t, x, u_I, kappa, method='Matrix', u_I_args=tuple()):
     # only works for 0 boundary conditions
     
     deltax = x[1] - x[0]            # gridspacing in x
@@ -59,7 +59,7 @@ def forw_eul_heat_eq(t, x, u_I, kappa, method='Matrix'):
     # first index is time
 
     for i in range(0, mx+1):
-        u[0,i] = u_I(x[i])
+        u[0,i] = u_I(x[i], *u_I_args)
     
     match method:
         case 'Singular': 
@@ -71,7 +71,7 @@ def forw_eul_heat_eq(t, x, u_I, kappa, method='Matrix'):
             pde_matrix = forw_eul_pde_matrix(lmbda, mx)
             for j in range(0, mt):
                 u[j+1,1:-1] = pde_matrix @ u[j,1:-1]
-                u[j+1,[0,1]] = 0  # boundary conditions
+                u[j+1,[0,-1]] = 0  # boundary conditions
 
     return u
 

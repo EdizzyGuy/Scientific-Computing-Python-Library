@@ -1,0 +1,129 @@
+  if root_solver is root or solver_object_output is True:
+        # 1st solutions
+        consequative_solutions = 0
+        # need 2 consequative solutions for secant
+        while consequative_solutions < 2: 
+            sol = root_solver(dXdt, init_guess, args=(p, *args))
+            # increment parameter until valid solution found
+            while not sol.success and within_parameter_range(p, param_range, pass_direction):
+                consequative_solutions = 0
+                params.append(p)
+                solutions.append(None)
+
+                p += init_delta_param * pass_direction
+                sol = root_solver(dXdt, init_guess, args=(p, *args))
+            
+            solutions.append(sol.x)
+            params.append(p)
+            #TEST THIS:
+            if not within_parameter_range(p, param_range, pass_direction):  # if true no solutions in param_range
+                print('root solver has failed to find valid solutions within the parameter range\n',
+                    'consider a different initial guess or root solver...')
+                return params, solutions
+
+            consequative_solutions += 1
+            p += init_delta_param * pass_direction
+            init_guess = solutions[-1]
+  
+#-----------------------------------------------------------------------------------------------   
+    # pass direction is unit positive if forward and unit negative if backward
+    pass_direction = np.sign(param_range[-1] - param_range[0])
+    #find first solution
+    p = param_range[0]
+
+    params = []
+    solutions = []
+    if root_solver is root or solver_object_output is True:
+        # 1st solutions
+        consequative_solutions = 0
+        # need 2 consequative solutions for secant
+        while consequative_solutions < 2: 
+            sol = root_solver(dXdt, init_guess, args=(p, *args))
+            # increment parameter until valid solution found
+            while not sol.success and within_parameter_range(p, param_range, pass_direction):
+                consequative_solutions = 0
+                params.append(p)
+                solutions.append(None)
+
+                p += init_delta_param * pass_direction
+                sol = root_solver(dXdt, init_guess, args=(p, *args))
+            
+            solutions.append(sol.x)
+            params.append(p)
+            #TEST THIS:
+            if not within_parameter_range(p, param_range, pass_direction):  # if true no solutions in param_range
+                print('root solver has failed to find valid solutions within the parameter range\n',
+                    'consider a different initial guess or root solver...')
+                return params, solutions
+
+            consequative_solutions += 1
+            p += init_delta_param * pass_direction
+            init_guess = solutions[-1]
+        # once loop is broken two consequative solutions are guaranteed and so we can proceed
+        assert (solutions[-1] is not None) and (solutions[-2] is not None)
+
+        #pred-corr approach:
+        iter = 1
+        while within_parameter_range(p, param_range, pass_direction):
+            #generate secant
+            secant_u, secant_p = secant(solutions[-1], solutions[-2], params[-1], params[-2])
+            sol = root_solver(dXdt, secant_u, args=(secant_p, *args))
+            if sol.success:
+                solutions.append(sol.x)
+                params.append(secant_p)
+                iter += 1
+            else:
+                # ERROR MESSAGE HERE
+                print(f'root solver has failed to find roots after iteration {iter} of prediction correction numerical continuation')
+                return solutions, params
+        
+        return solutions, params
+    else: # assumes output of root solver is ndarray
+        #1st solution
+        # 1st solutions
+        consequative_solutions = 0
+        # need 2 consequative solutions for secant
+        while consequative_solutions < 2: 
+            sol = root_solver(dXdt, init_guess, solve_ivp, args=(p, *args))
+            # increment parameter until valid solution found
+            while (not isinstance(sol, np.ndarray)) and within_parameter_range(p, param_range, pass_direction):
+                consequative_solutions = 0
+                params.append(p)
+                solutions.append(sol)
+
+                p += init_delta_param * pass_direction
+                sol = root_solver(dXdt, init_guess, solve_ivp, args=(p, *args))
+            
+            solutions.append(sol)
+            params.append(p)
+            #TEST THIS:
+            if not within_parameter_range(p, param_range, pass_direction):  # if true no solutions in param_range
+                print('root solver has failed to find valid solutions within the parameter range\n',
+                    'consider a different initial guess or root solver...')
+                break
+            
+            consequative_solutions += 1
+            p += init_delta_param * pass_direction
+            init_guess = solutions[-1]
+        # once loop is broken two consequative solutions are guaranteed and so we can proceed
+        assert (solutions[-1] is not None) and (solutions[-2] is not None)
+
+        #pred-corr approach:
+        iter = 1
+        #generate secant
+        secant_u, secant_p = secant(solutions[-1], solutions[-2], params[-1], params[-2])
+        while within_parameter_range(secant_p, param_range, pass_direction):           
+            sol = root_solver(dXdt, secant_u, args=(secant_p, *args))
+            if isinstance(sol, np.ndarray):
+                solutions.append(sol)
+                params.append(secant_p)
+                iter += 1
+                secant_u, secant_p = secant(solutions[-1], solutions[-2], params[-1], params[-2])
+            else:
+                # ERROR MESSAGE HERE
+                print(f'root solver has failed to find roots after iteration {iter} of prediction correction numerical continuation')
+                break
+        
+    solutions = np.asarray(solutions)
+    params = np.asarray(params)
+    return solutions, params

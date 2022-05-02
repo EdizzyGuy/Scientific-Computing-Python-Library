@@ -14,6 +14,15 @@ from utility import get_phase_portrait
 '''
 NATURAL PARAMETER CONTINUATION PRODUCES CORRECT GRAPHS FOR ALL 3
 EXAMPLES GIVEN IN WORKSHEET 18
+
+results = continuation(myode,  # the ODE to use
+    x0,  # the initial state
+    par0,  # the initial parameters
+    vary_par=0,  # the parameter to vary
+    step_size=0.1,  # the size of the steps to take
+    max_steps=100,  # the number of steps to take
+    discretisation=shooting,  # the discretisation to use
+    solver=scipy.optimize.fsolve)  # the solver to use
 '''
 
 # find when cubic = 0 for c varying from -2, 2

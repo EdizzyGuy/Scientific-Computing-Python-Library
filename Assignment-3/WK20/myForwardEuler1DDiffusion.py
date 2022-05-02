@@ -92,7 +92,13 @@ pl.ylabel('u(x,0.5)')
 pl.legend(loc='upper right')
 pl.show()
 # %%
+import sys
+origin = r'C:\\Users\\Ediz\\Documents\\uni stuff\\Scientific Computing\Assignment\ld18821-emat30008'
+sys.path.append(origin)
+
 from solve_heat_eq import *
+from utility import *
+
 L = 1.0
 T = 0.5
 kappa = 1.0
@@ -113,8 +119,17 @@ def u_exact(x,t):
     return y
 
 t, x = get_grid_space(T,L,mt,mx)
-sol = forw_eul_heat_eq(t,x,u_I,kappa,method='Singular')
-u_j = sol[-1]
+
+u_sing = forw_eul_heat_eq(t,x,u_I,kappa,method='Singular')
+u_j = u_sing[-1]
+
+u_mat = forw_eul_heat_eq(t,x,u_I,kappa,method='Matrix')
+u_j_mat = u_mat[-1]
+
+mse_diff_methods = mean_square_error(u_j_mat, u_j)
+print(f'Mean square error of both methods within the forward Euler'
+        'discretization is {mse_diff_methods}')
+
 # Plot the final result and exact solution
 pl.plot(x,u_j,'ro',label='num')
 xx = np.linspace(0,L,250)
