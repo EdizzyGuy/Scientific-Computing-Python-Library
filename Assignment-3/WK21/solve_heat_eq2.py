@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import linalg
 
 '''
 #   u_t = kappa u_xx  0<x<L, 0<t<T
@@ -114,4 +115,51 @@ def back_eul_heat_eq(t, x, u_I, kappa, u_I_args=tuple()):
 
     return u
 
+
+def crank_nicholson_pde_matrix(lmbda, mx):
+    lambda_array = np.array([lmbda for i in range(mx - 1)])
+    # A_CN = tridiag(-lmbda/2, 1+lambda, -lambda/2)
+    A_CN_1 = np.diag(1 + lambda_array)
+    A_CN_2 = np.diag(-1/2 * lambda_array[:-1], k=1)
+    A_CN_3 = np.diag(-1/2 * lambda_array[:-1], k=-1)
+    A_CN = A_CN_1 + A_CN_2 + A_CN_3
+    # B_CN = tridiag(lamdba/2, 1-lamdba, lamdba/2)
+    B_CN_1 = np.diag(1 - lambda_array)
+    B_CN_2 = np.diag(1/2 * lambda_array[:-1], k=1)
+    B_CN_3 = np.diag(1/2 * lambda_array[:-1], k=-1)  # CAN JUST USE MATRIX TRANSPOSE OF B_CN_2
+    B_CN = B_CN_1 + B_CN_2 + B_CN_3
+
+    return A_CN, B_CN
+
     
+def crank_nichol_eul_heat_eq(t, x, u_I, kappa, method='linalg solve', u_I_args=tuple()):
+
+    deltax = x[1] - x[0]            # gridspacing in x
+    deltat = t[1] - t[0]            # gridspacing in t
+
+    mx = int(x[-1] / deltax)
+    mt = int(t[-1] / deltat)
+    lmbda = kappa*deltat/(deltax**2) 
+
+    u = np.zeros((t.size, x.size))        # initialise solution of pde
+    # first index is time
+    for i in range(0, mx+1):
+        u[0,i] = u_I(x[i], *u_I_args)
+
+    A, B = crank_nicholson_pde_matrix(lmbda, mx)
+    # A_CN * u_j+1 = B_CN * u_j
+    # u_j+1 = inv(A_CN) * B_CN * u_j
+    match method:
+        case 'linalg solve':
+            for j in range(0, mt):
+                b = B @ u[j,1:-1]
+                # solves a x = b for x
+                u[j+1, 1:-1] = linalg.solve(A, b)
+                u[j+1, [0,-1]] = 0  # bound. cond.
+        case 'matrix inversion':
+            C = np.linalg.inv(A) @ B
+            for j in range(0, mt):
+                u[j+1, 1:-1] = C @ u[j,1:-1]
+                u[j+1, [0,-1]] = 0  # bound. cond.
+
+    return u
