@@ -1,5 +1,5 @@
 import numpy as np
-from utility import get_phase_portrait
+from utility import *
 from scipy.integrate import solve_ivp
 
 import unittest
@@ -30,6 +30,35 @@ class TestStringMethods(unittest.TestCase):
         path = get_phase_portrait(dX_dt, init_cond, solve_for=(0, period), solver=solve_ivp)
 
         self.assertTrue(np.all(np.isclose(path[0], path[-1], atol=atol)))
+
+    def test_abs_error(self):
+        a = np.arange(10)
+        b = 10*a
+
+        true_abs_error = 45*9
+        abs_err = abs_error(a,b)
+
+        self.assertTrue(true_abs_error == abs_err)
+
+    def test_mse(self):
+        a = np.arange(10)
+        b = 10*a
+
+        true_mse = 81*285 / 10
+        mse = mean_square_error(a,b)
+
+        self.assertTrue(true_mse == mse)
+
+    def test_rel_error(self):
+        a = np.arange(10)
+        b = 10*a
+
+        true_rel_err = 10
+        rel_err = mean_rel_error(b,a)
+
+        self.assertTrue(true_rel_err == rel_err)
+        
+
 
 if __name__ == '__main__':
     unittest.main()
