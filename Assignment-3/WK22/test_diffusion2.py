@@ -23,7 +23,7 @@ class TestStringMethods(unittest.TestCase):
         '''
         T,L,mx,mt = 1,1,5,3
 
-        def kappa(x,t):
+        def kappa(t,x):
             k =2*x - t
             return k
 
@@ -61,7 +61,7 @@ class TestStringMethods(unittest.TestCase):
         '''
         T,L,mx,mt = 1,1,5,3
 
-        def kappa(x,t):
+        def kappa(t, x):
             k = 1.0
             return k
 

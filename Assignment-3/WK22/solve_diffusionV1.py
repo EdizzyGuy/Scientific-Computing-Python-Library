@@ -53,9 +53,9 @@ def forw_eul_pde_matrix_varKappa(t, x, kappa):
     A = np.zeros((mt, mx-1, mx-1))
     for j in range(mt):
         for i in range(mx-1):
-            A[j,i,i-1] = c*kappa(x[i-1]-deltax/2,t[j])
-            A[j,i,i] = 1 - c*(kappa(x[i]+deltax/2,t[j]) + kappa(x[i]-deltax/2,t[j]))
-            A[j,i,(i+1)%(mx-1)] = c*kappa(x[i+1]+deltax/2,t[j])
+            A[j,i,i-1] = c*kappa(t[j],x[i-1]-deltax/2)
+            A[j,i,i] = 1 - c*(kappa(t[j],x[i]+deltax/2) + kappa(t[j],x[i]-deltax/2))
+            A[j,i,(i+1)%(mx-1)] = c*kappa(t[j],x[i+1]+deltax/2)
         A[j,0,-1] = 0
         A[j,-1,0] = 0
     
