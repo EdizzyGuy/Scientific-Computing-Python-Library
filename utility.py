@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 import numpy as np
 from ode import solve_ode
 from scipy.integrate import solve_ivp
+import time
 # MAKE THIS WORK WITH NUMPY SOLVER
 
 
@@ -50,10 +52,39 @@ def get_phase_portrait(dXdt, init_cond, solve_for, solver=solve_ode, title=None,
     return path
     # STABLE LIMIT CYCLE -> it has been shown that solutions collapse to a stable equilibrium at b =0.27
 
+def display_dynamic_solution(u, x, t, title, comp_time=10):
+    
+    x_upper = x.max()
+    x_lower = x.min()
+    u_upper = u[0].max()
+    u_lower = u[0].min()
+
+    fig = plt.figure(figsize=(6,6), facecolor='white')
+    fps = len(t) / comp_time
+    period = 1000 / fps  # given in millisecs
+
+    def update(frame):
+        plt.clf()
+        plt.plot(x,u[frame],'r-')
+        plt.title(title)
+        plt.xlabel('x')
+        plt.ylabel(f'u(x,{t[frame]:.4f})')
+        plt.xlim(x_lower, x_upper)
+        plt.ylim(u_lower, u_upper)
+        plt.show()
+
+    animation = FuncAnimation(fig, update, interval=period, frames=len(t))
+    plt.show() 
+
 
 def mean_square_error(A, B, ax=None):
     mse = (np.square(A - B)).mean(ax)
     return mse
+
+def abs_error(A, B):
+    error = A - B
+    abs_error = np.sum(np.abs(error))
+    return abs_error
 
 def isInteger(N):
     X = int(N)
@@ -64,8 +95,17 @@ def isInteger(N):
          
     return False
 
-def test():
-    print('yes')
-    return
+def time_function(func, count=1, args=tuple(), kwargs=dict()):
+    times = np.zeros(count)
+    for i in range(count):
+        start = time.time()
+        sol = func(*args, **kwargs)
+        end = time.time()
+        times[i] = end-start
+    avg = np.average(times)
+    std = np.std(times)
+    if count == 1:
+        std = np.inf
+    return avg, std
 
 
