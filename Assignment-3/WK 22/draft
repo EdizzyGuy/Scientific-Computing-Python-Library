@@ -1,0 +1,74 @@
+CREATE TESTS FOR PDE
+add approximation parameter (fe be cn)
+find solutions of pde online to use as testing! (try 5)
+
+DIRICHLET BOUND COND.
+    boundary condition in 2d will need to have 'top/bot' or 'left/right' inputted in to know what the boundary is
+define boundary function, set it default to 0, define points in u along the boundary before calculation begins
+from here (because u init to 0) we can grab the neccessary vectors that will be added to our A_FE * u matrix,
+add these to u (because mid is filled with 0s) then add A_FE*u ALT add A_FE*u to our vector and insert to u
+            FIND EQ FOR BACKWARD AND CRANK NICHOLSON
+
+NEUMANN BOUND COND.
+    need to define new mat equation for A_FE, will need to be seperate instigations of neumann and dirichlet since
+the matrices are fundamentally different. probably should create a wrapper function anyways that directs code to the right path based on parameters (e.g bound=dirichlet (or) neumann)
+    process will be quite similar as we can grab the vectors in a similar way
+            FIND EQ FOR BACKWARD AND CRANK NICHOLSON
+
+PERIODIC BOUND COND.
+    start of bound and end of bound must be the same number therefore solve each timestep from start of boundary to
+the point before the end and append the value at the start to the end.
+    TREAT START AND END AS THE SAME                                        _
+    need to define a new matrix and also a new method since the new matrix A_FE*u will return a different sized array
+add on the first element to the last afterwards
+            FIND EQ FOR BACKWARD AND CRANK NICHOLSON
+
+RHS FUNCTION
+    dt*F(j+1) is just added to equation that gives u(j+1) for forward euler
+
+    can use similar trick in backward euler where normally we would be solving A*u[j+1] = u[j] via Mx =b
+    but now we solve A*u[j+1] = u[j] + dt*F[j+1]
+
+    The same idea can be applied to crank nicholson where the equation to solve becomes
+    A*u[j+1] = B*u[j] + dt*F[i,j+1/2]
+    compute RHS and apply Mx=b as usual.
+    
+    All these act in the same as the zero boundary condition therefore can just define a parameter F and initialise to 0 such that it is the function F. This will work in both cases.
+
+VARIABLE DIFFUSION COEFFICIENT
+    could create a kappa matrix with all the values of kappa in the gridspace. This will then be used as referance 
+    for the different matrix generator methods!
+
+    uses same central diff approx as other solvers use for u_xx
+    is using a forward euler method
+    since dissusion function is known we can apply other methods like we are applying this but will take longer to
+find.
+    it will be a complicated function to build the matrix A for A*u[j] = u[j+1] and it may be required to go row wise to figure out what they are because lambda varies for each entry...
+    IS HARDER
+            FIND EQ FOR BACKWARD AND CRANK NICHOLSON
+    in practise i imagine the implementations for the other two approximations will be the same where hopefully the actual matrices wont change and therefore since we will only be forming it once it will have a negligible impact on speed.
+    This means it will be best to change all the matrix forming functions to accomodate for a variable lambda since it will only be calculated once and for the case where the coefficient is not variable the same matrix will be outputted as it was previously doing
+    The difficulty of this is it will effect methods that do not get their solution from a single operation (like mat
+    mul or linalg.solve) and instead concatenate two vectors together to form the solution. Both the vectors are likely to be effected by the variable coefficient.
+        IS AFFECTED      crank nicholson and back euler, neumann bound cond {probably can be helped but would have to find lambda at each time step and grid point -> this is probably not the worst in terms of performance and so
+        a general case could be made}, similarly - dirichlet
+        IS NOT           rhs func. any forward euler (& periodic,)
+    
+    will have to go through each derivation and see what lambda should be for each element in its equation... this will lead to a bunch of matrix defining equations that will indeed be long. ID SAY DONNI BOTHA
+
+NON LINEAR PDE PROBLEMS
+    should add function that checks if inputted F is linear in u (grab 3 points and see if they form a straight line)
+    if it is can proceed with the standard RHS method
+    would have to make this a case in the wrapper function where it will be told if F is non linear in u {doesnt rlly have to checked since its a user generated function therefore the user should know}
+
+    -> same method as RHS, just there are added complications due to its non linearity (in terms of if the solution is correct) HAVE AN ERROR PRINTED WHERE USER IS TOLD THAT SOLUTIONS MIGHT B ABIT BAD
+
+    FOR CRANK-NIC AND BACKW man was intentionally vague with the implementation... it could be a root finding problem
+                LOOK THIS UP ONLINE
+
+MORE SPACIAL DIMENSIONS
+    would be applicable to variable diffusion coefficient BUT MUST IMPLEMENT SPARSE MATRIXES BEFORE BEGIN
+    id say dont bother with the implicit methods...
+
+bismillah
+

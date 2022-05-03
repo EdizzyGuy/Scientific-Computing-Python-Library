@@ -15,5 +15,75 @@
 	In our case (for L=1, D=1, T=0.5, mt=1000) mx > 31 will break stability criterion and therefore
 	solutions will be incorrect and display exponential growth.
 
+
 2
-	
+		testing_forw_eul_matrix.py:
+	There is (at the bottom) the draft of my 1d heat equation animation function
+	which shows how the solution changes going forwards in time.
+	From it we can infer that the steady state of the PDE problem is u = 0 as t->oo
+	Furthermore we can see that heat dissipates faster initially, due to the larger absolute difference of values
+	of u within the domain. This makes sense as there is more heat to dissipate.
+	The steady state of u = 0 follows from the boundary condition that sets u at the boundaries = 0,
+	therefore any heat that is dissipated towards the boundary will be lost information and this causes the steady
+	state of the solution to be 0
+
+		change_init_distr.py:
+	Looks at the possibilities for different distributions in the starting condition. It also showcase the use of 
+	my new function display_dynamic_solution() which is used to showcase how the different starting conditions 
+	effect the solution going forwards in time.
+	Unfortunately currently I cant seem to accurately get the animation to run faster, despite changing the interval
+	between each frame. This is likely because there are too many frames to render (for 10000 frames to display in 10s
+	would require 1000 fps...) and so care should be taken to use low values of mt when the objective is to make an 
+	animation.
+	It is interesting to see that solutions with an integer power of sin for the initial condition acctually move
+	towards being a sin wave solutions with a decaying magnitude (same as the solution with the power of sin =1)
+
+
+3
+	Initial matrix implementation is showcased in my_forward_euler_1D_diffusion, and also showcases that the two 
+	methods do indeed obtain the same result as the mean square error between both is well below machine numerical 
+	precision.
+	Furthermore testing_forw_eul_matrix.py and testing_forw_eul_singular.py grabs some useful metrics to compare the
+	two approaches, where each is times and also evaluated in accuracy using a mean square error against the
+	analytical solution.
+	The matrix implementation shows superior results.
+
+
+4
+		myBackwardEuler1Ddiffusion.py:
+	Showcases draft of backward euler solver and also shows that it solves the equation adequetly.
+	Also uses the back_eul_heat_eq from solve_heat_eq2.py to solve the heat equation and obtains the same results
+
+			myCrankNicholson1Ddiffusion.py:
+	showcases script applying crank nicholson method and also uses function defined in solve_heat_eq2 to solve the heat
+	eq again and compares results. The function defined in solve_heat_eq2 is faster and works adequately. Interestingly
+	when solving A_CN * u_j+1 = B_CN * u_j a much superior performance is observed through solving this equation via a 
+	matrix inversion 				i.e. u_j+1 = inv(A_CN) * B_CN * u_j 		than using scipy.linalg.solve	
+	i.e. define b = B_CN * u_j now eq is of the form a * x = b and can use linalg.solve.
+	scipy.linalg.solve is about twice as slow as using matrix inversion therefore it would be best to first try matrix
+	inversion and in the case of an error to use linalg.solve
+	In terms of their accuracy (metric mean square error) both perform equally.
+
+			compare_diffusion_methods.py:
+	Gets metrics for accuracy and speed for each method.
+	From comparison we can see that, for using the same number of gridpoints in space and time, forward euler is fastest
+	2nd is crank nicholson and 3rd is backward euler. Crank nicholson has the highest accuracy, followed by backward euler
+	then forward euler.
+	To compare speed metrics accurately between the 3 methods I iteratively reduced parameter mt when calculating solutions
+	for backward euler and crank nicholson such that the mean square error of them was within 5% of forward euler.
+	My results from this are not helpful though, the fastest algorithm switches between each of them depending on the various
+	parameters of the algorithm and the diffusion equation itself
+	Some further interesting results is that for the grid spacing and parameters forward euler is sometimes most accurate
+	{kappa=1,L=1,T=0.2,mx=10,mt=100}
+	And also that a smaller value of mt has given me better accuracy for crank nicholson as displayed in the for loop that 
+	decreases grid spaces in time until the mean sq errors of forward euler and crank nicholson are comparable - but forward
+	started with a smaller error.
+	To explore this I will plot a deltat vs abs error curve for each method.
+	TO DO!
+
+		plot_deltat_vs_acc
+
+
+5
+
+
