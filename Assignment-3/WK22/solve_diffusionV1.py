@@ -40,10 +40,24 @@ def forw_eul_pde_matrix(lmbda, mx):
 
     return A_FE
 
-def get_tridiag():
+#TODO implement this using np.diag and compare speed
+def forw_eul_pde_matrix_varKappa_x(t, x, kappa):
+    deltax = x[1] - x[0]            # gridspacing in x
+    deltat = t[1] - t[0]            # gridspacing in t
+    mx = int(x[-1] / deltax)
 
-    pass
-def forw_eul_pde_matrix_varKappa(t, x, kappa):
+    c = deltat / deltax**2
+    A = np.zeros((mx-1, mx-1))
+    for i in range(mx-1):
+        A[i,i-1] = c*kappa(x[i-1]-deltax/2)
+        A[i,i] = 1 - c*(kappa(x[i]+deltax/2) + kappa(x[i]-deltax/2))
+        A[i,(i+1)%(mx-1)] = c*kappa(x[i+1]+deltax/2)
+    A[0,-1] = 0
+    A[-1,0] = 0
+    return A
+
+#TODO implement this using np.diag and compare speed
+def forw_eul_pde_matrix_varKappa_tx(t, x, kappa):
     deltax = x[1] - x[0]            # gridspacing in x
     deltat = t[1] - t[0]            # gridspacing in t
     mx = int(x[-1] / deltax)
