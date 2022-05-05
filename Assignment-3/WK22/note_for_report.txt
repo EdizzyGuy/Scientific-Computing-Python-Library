@@ -13,14 +13,20 @@ MEAN REL ERROR
 using t and x to implicitly define deltax deltat mx and mt so that the list of parameters to keep is minimised (via
 get_grid_spacing)
 
-tested to see how long it is taking to evaluate if kappa is a function for forw_eul_diffusion to see if its worth
-taking out the function that generates matrix for a constant kappa and just use var kappa generating matrix all the
-time for the sake of simplicity.
-The way I have done this is by tracking the time for the generation of the forw_eul matrix, for a constant kappa
-between just after the if that checks if function is callable and to once the matrix is defined (using matrix 
-generator that takes kappa as a function) and also timing how long it takes to generate the matrix from before the 
-if statement to once the matrix is defined for the function that takes lambda to create the matrix. 
-The document {compare_forw_eul_matrices2} shows that using kappa as a function for constant kappa reduces speed by
-abit more than 5%.
+VAR KAPPA
+    tested to see how long it is taking to evaluate if kappa is a function for forw_eul_diffusion to see if its worth
+    taking out the function that generates matrix for a constant kappa and just use var kappa generating matrix all the
+    time for the sake of simplicity.
+    The way I have done this is by tracking the time for the generation of the forw_eul matrix, for a constant kappa
+    between just after the if that checks if function is callable and to once the matrix is defined (using matrix 
+    generator that takes kappa as a function) and also timing how long it takes to generate the matrix from before the 
+    if statement to once the matrix is defined for the function that takes lambda to create the matrix. 
+    The document {compare_forw_eul_matrices2} shows that using kappa as a function for constant kappa reduces speed by
+    abit more than 5%.
 
-getting rid of singular method in solve diffusion because its obsolete
+getting rid of singular method in solve diffusion because its obsolete (bad performance and no reason to ever use it)
+
+RHS func    
+    predefining this to be 0 (for the case that there is no rhs function) and therefore will work in generality
+    function should always be given as a function of (t,x) extra args permitted but must be given as func_args 
+    and func_kwargs

@@ -16,9 +16,100 @@ import unittest
 class TestStringMethods(unittest.TestCase):
 
 # TEST FOR HIGHER DIMENSIONAL SYS OF ODES
-    def test_forw_euler_diffusion_kappaCONST_FUNC_x(self):
-        ''' Tests the numerical solution of a specific diffusion problem against the known analytical solution.
-        KAPPA is given as a CONSTANT'''
+    def test_forw_euler_diffusion_rhsFUNC_tx(self):
+        '''Tests the numerical solution of 
+        u_t = D*u_xx + f(t,x)    for u(t=0, x) = sin(pi*x/L) and f(t,x) = exp(t*-D*pi^2/L^2)*sin(pi*x/L)
+        
+        Against the analytical solution:
+        u(t,x) = L^2/(D*pi^2)*(1-exp(-D*pi^2*t/L^2))*sin(pi*x/L) + exp(-4*D*(pi^2/L^2)*t)*sin(2*pi*x/L)
+
+        Where D : diffusion constant, L = length of spacial domain, 
+        TESTING WHETHER FORWARD EULER CAN HANDLE A RHS FUNCTION DEPENDANT ON X
+        '''
+        rtol=1e-02
+
+        L=1.0         # length of spatial domain
+        T=0.5         # total time to solve for
+        kappa = 1.0
+
+        def u_I(x):
+            # initial temperature distribution
+            y = np.sin(2*pi*x/L)
+            return y
+        def rhs_func(t,x):
+            f = np.exp(-t*kappa*pi**2/L**2)*np.sin(pi*x/L)
+            return f
+        def u_exact(x,t):
+            # the exact solution
+            y = t*np.sin(pi*x/L)*np.exp(-kappa*pi**2*t/L**2) + np.exp(-4*kappa*pi**2*t/L**2)*np.sin(2*pi*x/L)
+            return y
+        
+        mx = 100
+        mt = 10000
+
+        x = np.linspace(0, L, mx+1)     # mesh points in space
+        t = np.linspace(0, T, mt+1)     # mesh points in time
+
+        anal_u = u_exact(x,T)
+        args = (t,x,u_I,kappa,rhs_func)
+
+        u_fe = forw_eul_diffusion(*args)
+        rel_error = mean_rel_error(u_fe[-1], anal_u)
+
+        self.assertTrue(np.isclose(rel_error, 1, rtol=rtol))
+
+    def test_forw_euler_diffusion_rhsFUNC_x(self):
+        '''Tests the numerical solution of 
+        u_t = D*u_xx + f(x)    for u(t=0, x) = sin(pi*x/L) and f(x) = sin(pi*x/L)
+        
+        Against the analytical solution:
+        u(t,x) = L^2/(D*pi^2)*(1-exp(-D*pi^2*t/L^2))*sin(pi*x/L) + exp(-4*D*(pi^2/L^2)*t)*sin(2*pi*x/L)
+        
+        Where D : diffusion constant, L = length of spacial domain,
+        TESTING WHETHER FORWARD EULER CAN HANDLE A RHS FUNCTION DEPENDANT ON X
+        '''
+        rtol=1e-02
+
+        L=1.0         # length of spatial domain
+        T=0.5         # total time to solve for
+        kappa = 1.0
+
+        def u_I(x):
+            # initial temperature distribution
+            y = np.sin(2*pi*x/L)
+            return y
+        def rhs_func(t,x):
+            f = np.sin(pi*x/L)
+            return f
+        def u_exact(x,t):
+            # the exact solution
+            y = L**2/(kappa*pi**2)*(1-np.exp(-kappa*pi**2*t/L**2))*np.sin(pi*x/L) + np.exp(-4*kappa*(pi**2/L**2)*t)*np.sin(2*pi*x/L)
+            return y
+        
+        mx = 100
+        mt = 10000
+
+        x = np.linspace(0, L, mx+1)     # mesh points in space
+        t = np.linspace(0, T, mt+1)     # mesh points in time
+
+        anal_u = u_exact(x,T)
+        args = (t,x,u_I,kappa,rhs_func)
+
+        u_fe = forw_eul_diffusion(*args)
+        rel_error = mean_rel_error(u_fe[-1], anal_u)
+
+        self.assertTrue(np.isclose(rel_error, 1, rtol=rtol))
+
+    def test_forw_euler_diffusion_kappaCONST_FUNC_tx(self):
+        ''' Tests the numerical solution of 
+        u_t = D*u_xx    for u(t=0, x) = sin(pi*x/L)
+        
+        Against the analytical solution:
+        exp(t*-D*pi^2/L^2)*sin(pi*x/L)
+
+        Where D (kappa) is given as a function of x and t, and returns a constant value, and L : length of spacial domain 
+        TESTING WHETHER FORWARD EULER CAN HANDLE KAPPA FUNCTIONS OF X AND T
+        '''
         rtol=1e-02
 
         L=1.0         # length of spatial domain
@@ -52,8 +143,15 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue(np.isclose(rel_error, 1, rtol=rtol))
 
     def test_forw_euler_diffusion_kappaCONST_FUNC_x(self):
-        ''' Tests the numerical solution of a specific diffusion problem against the known analytical solution.
-        KAPPA is given as a CONSTANT'''
+        ''' Tests the numerical solution of 
+        u_t = D*u_xx    for u(t=0, x) = sin(pi*x/L)
+        
+        Against the analytical solution:
+        exp(t*-D*pi^2/L^2)*sin(pi*x/L)
+
+        where D (kappa) is given as a function of x and returns a constant value, and L : length of spacial domain
+        TESTING WHETHER FORWARD EULER CAN HANDLE KAPPA FUNCTIONS OF X
+        '''
         rtol=1e-02
 
         L=1.0         # length of spatial domain
@@ -87,8 +185,15 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue(np.isclose(rel_error, 1, rtol=rtol))
 
     def test_forw_euler_diffusion_kappaCONST(self):
-        ''' Tests the numerical solution of a specific diffusion problem against the known analytical solution.
-        KAPPA is given as a CONSTANT'''
+        ''' Tests the numerical solution of 
+        u_t = D*u_xx    for u(t=0, x) = sin(pi*x/L)
+        
+        Against the analytical solution:
+        exp(t*-D*pi^2/L^2)*sin(pi*x/L)
+
+        where D (kappa) is given as a constant, and L : length of spacial domain
+        TESTING WHETHER FORWARD EULER CAN SOLVE SIMPLE HEAT EQUATION
+        '''
         rtol=1e-02
 
         L=1.0         # length of spatial domain
@@ -102,78 +207,6 @@ class TestStringMethods(unittest.TestCase):
         def u_exact(x,t):
             # the exact solution
             y = np.exp(-kappa*(pi**2/L**2)*t)*np.sin(pi*x/L)
-            return y
-        
-        mx = 100
-        mt = 10000
-
-        x = np.linspace(0, L, mx+1)     # mesh points in space
-        t = np.linspace(0, T, mt+1)     # mesh points in time
-
-        anal_u = u_exact(x,T)
-        args = (t,x,u_I,kappa)
-
-        u_fe = forw_eul_diffusion(*args)
-        rel_error = mean_rel_error(u_fe[-1], anal_u)
-
-        self.assertTrue(np.isclose(rel_error, 1, rtol=rtol))
-
-    def test_forw_euler_diffusion_kappaFUNC_x(self):
-        ''' Tests the numerical solution of a specific diffusion problem against the known analytical solution.
-        KAPPA is given as a function, but is constant and is a FUNCTION OF X'''
-        rtol=1e-02
-
-        L=1.0         # length of spatial domain
-        T=0.5         # total time to solve for
-
-        def kappa(x):
-            kappa = 1.0
-            return kappa
-
-        def u_I(x):
-            # initial temperature distribution
-            y = np.sin(pi*x/L)
-            return y
-        def u_exact(x,t):
-            # the exact solution
-            k = 1.0
-            y = np.exp(-k*(pi**2/L**2)*t)*np.sin(pi*x/L)
-            return y
-        
-        mx = 100
-        mt = 10000
-
-        x = np.linspace(0, L, mx+1)     # mesh points in space
-        t = np.linspace(0, T, mt+1)     # mesh points in time
-
-        anal_u = u_exact(x,T)
-        args = (t,x,u_I,kappa)
-
-        u_fe = forw_eul_diffusion(*args)
-        rel_error = mean_rel_error(u_fe[-1], anal_u)
-
-        self.assertTrue(np.isclose(rel_error, 1, rtol=rtol))
-
-    
-    def test_forw_euler_diffusion_kappaCONST_tx(self):
-        ''' Tests the numerical solution of a specific diffusion problem against the known analytical solution.
-        KAPPA is given as a function, but is constant and is a FUNCTION OF X AND T'''
-        rtol=1e-02
-
-        L=1.0         # length of spatial domain
-        T=0.5         # total time to solve for
-
-        def kappa(x):
-            kappa = 1.0
-            return kappa
-        def u_I(x):
-            # initial temperature distribution
-            y = np.sin(pi*x/L)
-            return y
-        def u_exact(x,t):
-            # the exact solution
-            k = 1.0
-            y = np.exp(-k*(pi**2/L**2)*t)*np.sin(pi*x/L)
             return y
         
         mx = 100
