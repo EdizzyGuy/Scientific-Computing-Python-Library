@@ -117,7 +117,8 @@ def forw_eul_pde_matrix_varKappa_tx(t, x, kappa, args=tuple()):
     return A
 
 
-def forw_eul_diffusion(t, x, u_I, kappa, u_I_args=tuple(), kappa_args=tuple()):
+def forw_eul_diffusion(t, x, u_I, kappa, rhs_func=lambda t,x : 0, 
+        u_I_args=tuple(), kappa_args=tuple(), func_args=tuple()):
     # only works for 0 boundary conditions
         
     deltat, deltax = get_grid_spacing(t,x)            
@@ -129,13 +130,13 @@ def forw_eul_diffusion(t, x, u_I, kappa, u_I_args=tuple(), kappa_args=tuple()):
     
 
     if callable(kappa):
-        args = inspect.getargspec(kappa).args
+        args = inspect.getfullargspec(kappa).args
         xx = np.linspace(x[0],x[-1],250)  # will be used to analyse stability criteria 
         kappa_star = 1/2 * deltax**2/deltat
 
-        if t in args:
+        if 't' in args:
             # is not worth checking stability in case of t dependence since evaluated array would be massive!
-            forw_eul_matrix = forw_eul_pde_matrix_varKappa_tx(t,x,kappa, *kappa_args)
+            forw_eul_matrix = forw_eul_pde_matrix_varKappa_tx(t,x,kappa,*kappa_args)
             
             # this variable will tell the program whether there will be a different A matrix at each time step
             # see below underneath the termination of the overhanging if statement
@@ -159,7 +160,7 @@ def forw_eul_diffusion(t, x, u_I, kappa, u_I_args=tuple(), kappa_args=tuple()):
         oracle = 0
 
     for j in range(0, mt):
-        u[j+1,1:-1] = forw_eul_matrix[j*oracle] @ u[j,1:-1]  # the oracle shines
+        u[j+1,1:-1] = forw_eul_matrix[j*oracle] @ u[j,1:-1] + deltat*rhs_func(t[j+1],x[1:-1],*func_args) # the oracle shines
         u[j+1,[0,-1]] = 0  # boundary conditions
 
     return u
