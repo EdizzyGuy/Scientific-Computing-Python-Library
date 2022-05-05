@@ -6,52 +6,30 @@ from solve_diffusionV1 import *
 from utility import *
 from math import pi
 
-'''
-duration of defining matrix for constant kappa (as a function):
-    0.0067217350006103516
-duration of defining matrix for constant kappa
-    0.007536649703979492
-'''
-
-def test_forw_euler_diffusion():
-
-    L=1.0         # length of spatial domain
-    T=0.5         # total time to solve for
+def test_forw_eul_matrix_kappaVariable_x():
+    ''' Generates A_FE matrix for a VARIABLE diffusion coefficient, DEPENDANT ON X. Compares result to a 
+    known (hand calculated) A_FE and asserts that they are the same.
+    kappa function used is  :   kappa(x,t) = 2x
+    '''
+    T,L,mx,mt = 1,1,5,3
 
     def kappa(x):
-        kappa = 1.0
-        return kappa
+        k =2*x
+        return k
 
-    def u_I(x):
-        # initial temperature distribution
-        y = np.sin(pi*x/L)
-        return y
-    def u_exact(x,t):
-        # the exact solution
-        k = 1.0
-        y = np.exp(-k*(pi**2/L**2)*t)*np.sin(pi*x/L)
-        return y
-    
-    mx = 100
-    mt = 10000
+    t,x = get_grid_space(T,L,mt,mx)  
 
-    x = np.linspace(0, L, mx+1)     # mesh points in space
-    t = np.linspace(0, T, mt+1)     # mesh points in time
+    # define true matrix
+    A_true = np.zeros((1,mx-1,mx-1))
+    A_true[:,0,:2] = np.array([1, 5])
+    A_true[:,1,:3] = np.array([-5/3, -17/3,25/3])
+    A_true[:,2,1:4] = np.array([5/3,-37/3,35/3])
+    A_true[:,3,2:] = np.array([5,-19])
 
-    anal_u = u_exact(x,T)
-    args = (t,x,u_I,kappa)
-    args2 = (t,x,u_I,1.0)
+    # get matrix from predefined function
+    A = forw_eul_pde_matrix_varKappa_x(t,x,kappa)
 
-    s = time.time()
-    u_fe = forw_eul_diffusion(*args)
-    e = time.time()
-    u_fe2 = forw_eul_diffusion(*args2)
-    f = time.time()
-    rel_error = mean_rel_error(u_fe[-1], anal_u)
-    rel_error2 = mean_rel_error(u_fe2[-1], anal_u)
+    return A
 
-    return rel_error, rel_error2, e-s, f-e
-
-rel_error = test_forw_euler_diffusion()
-
+test_forw_eul_matrix_kappaVariable_x()
 print('yay')

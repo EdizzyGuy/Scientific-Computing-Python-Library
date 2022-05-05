@@ -101,7 +101,7 @@ def forw_eul_pde_matrix_varKappa_tx(t, x, kappa, args=tuple()):
 
     '''
     
-    deltat, deltax = get_grid_spacing           # gridspacing in t
+    deltat, deltax = get_grid_spacing(t,x)           # gridspacing in t
     mt, mx = int(t[-1] / deltat), int(x[-1] / deltax)
 
     c = deltat / deltax**2

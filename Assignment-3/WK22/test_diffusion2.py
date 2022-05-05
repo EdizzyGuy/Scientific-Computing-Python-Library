@@ -16,14 +16,84 @@ import unittest
 class TestStringMethods(unittest.TestCase):
 
 # TEST FOR HIGHER DIMENSIONAL SYS OF ODES
-    def test_forw_euler_diffusion(self):
+    def test_forw_euler_diffusion_kappaCONST_FUNC_x(self):
+        ''' Tests the numerical solution of a specific diffusion problem against the known analytical solution.
+        KAPPA is given as a CONSTANT'''
+        rtol=1e-02
 
         L=1.0         # length of spatial domain
         T=0.5         # total time to solve for
+        
+        def kappa(t,x):
+            kappa = 1.0
+            return kappa
+        def u_I(x):
+            # initial temperature distribution
+            y = np.sin(pi*x/L)
+            return y
+        def u_exact(x,t):
+            # the exact solution
+            k = 1.0
+            y = np.exp(-k*(pi**2/L**2)*t)*np.sin(pi*x/L)
+            return y
+        
+        mx = 100
+        mt = 10000
 
+        x = np.linspace(0, L, mx+1)     # mesh points in space
+        t = np.linspace(0, T, mt+1)     # mesh points in time
+
+        anal_u = u_exact(x,T)
+        args = (t,x,u_I,kappa)
+
+        u_fe = forw_eul_diffusion(*args)
+        rel_error = mean_rel_error(u_fe[-1], anal_u)
+
+        self.assertTrue(np.isclose(rel_error, 1, rtol=rtol))
+
+    def test_forw_euler_diffusion_kappaCONST_FUNC_x(self):
+        ''' Tests the numerical solution of a specific diffusion problem against the known analytical solution.
+        KAPPA is given as a CONSTANT'''
+        rtol=1e-02
+
+        L=1.0         # length of spatial domain
+        T=0.5         # total time to solve for
+        
         def kappa(x):
             kappa = 1.0
             return kappa
+        def u_I(x):
+            # initial temperature distribution
+            y = np.sin(pi*x/L)
+            return y
+        def u_exact(x,t):
+            # the exact solution
+            k = 1.0
+            y = np.exp(-k*(pi**2/L**2)*t)*np.sin(pi*x/L)
+            return y
+        
+        mx = 100
+        mt = 10000
+
+        x = np.linspace(0, L, mx+1)     # mesh points in space
+        t = np.linspace(0, T, mt+1)     # mesh points in time
+
+        anal_u = u_exact(x,T)
+        args = (t,x,u_I,kappa)
+
+        u_fe = forw_eul_diffusion(*args)
+        rel_error = mean_rel_error(u_fe[-1], anal_u)
+
+        self.assertTrue(np.isclose(rel_error, 1, rtol=rtol))
+
+    def test_forw_euler_diffusion_kappaCONST(self):
+        ''' Tests the numerical solution of a specific diffusion problem against the known analytical solution.
+        KAPPA is given as a CONSTANT'''
+        rtol=1e-02
+
+        L=1.0         # length of spatial domain
+        T=0.5         # total time to solve for
+        kappa = 1.0
 
         def u_I(x):
             # initial temperature distribution
@@ -48,10 +118,80 @@ class TestStringMethods(unittest.TestCase):
 
         self.assertTrue(np.isclose(rel_error, 1, rtol=rtol))
 
+    def test_forw_euler_diffusion_kappaFUNC_x(self):
+        ''' Tests the numerical solution of a specific diffusion problem against the known analytical solution.
+        KAPPA is given as a function, but is constant and is a FUNCTION OF X'''
+        rtol=1e-02
 
+        L=1.0         # length of spatial domain
+        T=0.5         # total time to solve for
+
+        def kappa(x):
+            kappa = 1.0
+            return kappa
+
+        def u_I(x):
+            # initial temperature distribution
+            y = np.sin(pi*x/L)
+            return y
+        def u_exact(x,t):
+            # the exact solution
+            k = 1.0
+            y = np.exp(-k*(pi**2/L**2)*t)*np.sin(pi*x/L)
+            return y
+        
+        mx = 100
+        mt = 10000
+
+        x = np.linspace(0, L, mx+1)     # mesh points in space
+        t = np.linspace(0, T, mt+1)     # mesh points in time
+
+        anal_u = u_exact(x,T)
+        args = (t,x,u_I,kappa)
+
+        u_fe = forw_eul_diffusion(*args)
+        rel_error = mean_rel_error(u_fe[-1], anal_u)
+
+        self.assertTrue(np.isclose(rel_error, 1, rtol=rtol))
+
+    
+    def test_forw_euler_diffusion_kappaCONST_tx(self):
+        ''' Tests the numerical solution of a specific diffusion problem against the known analytical solution.
+        KAPPA is given as a function, but is constant and is a FUNCTION OF X AND T'''
+        rtol=1e-02
+
+        L=1.0         # length of spatial domain
+        T=0.5         # total time to solve for
+
+        def kappa(x):
+            kappa = 1.0
+            return kappa
+        def u_I(x):
+            # initial temperature distribution
+            y = np.sin(pi*x/L)
+            return y
+        def u_exact(x,t):
+            # the exact solution
+            k = 1.0
+            y = np.exp(-k*(pi**2/L**2)*t)*np.sin(pi*x/L)
+            return y
+        
+        mx = 100
+        mt = 10000
+
+        x = np.linspace(0, L, mx+1)     # mesh points in space
+        t = np.linspace(0, T, mt+1)     # mesh points in time
+
+        anal_u = u_exact(x,T)
+        args = (t,x,u_I,kappa)
+
+        u_fe = forw_eul_diffusion(*args)
+        rel_error = mean_rel_error(u_fe[-1], anal_u)
+
+        self.assertTrue(np.isclose(rel_error, 1, rtol=rtol))
 
     def test_forw_eul_matrix_kappaVariable_tx(self):
-        ''' Generates A_FE matrix for a variable diffusion coefficient, dependent on x AND t. Compares result to a 
+        ''' Generates A_FE matrix for a VARIABLE diffusion coefficient, DEPENDANT ON X AND T. Compares result to a 
         known (hand calculated) A_FE and asserts that they are the same.
         kappa function used is  :   kappa(x,t) = 2x - t 
         '''
@@ -62,8 +202,6 @@ class TestStringMethods(unittest.TestCase):
             return k
 
         t,x = get_grid_space(T,L,mt,mx) 
-        deltax = x[1] - x[0]            # gridspacing in x
-        deltat = t[1] - t[0]
 
         # define true matrix
         A_true = np.zeros((mt, mx-1,mx-1))
@@ -88,8 +226,8 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue(np.all(np.isclose(A_true,A)))
 
     def test_forw_eul_matrix_kappaConstant_tx(self):
-        ''' Generates A_FE matrix for a constant diffusion coefficient, where the diffusion constant is defined as a function, dependent
-        on x and t, returning a constant value. Compares result to a known (hand calculated) A_FE and asserts that they are the same.
+        ''' Generates A_FE matrix for a CONSTANT diffusion coefficient, where the diffusion constant is defined as a function, DEPENDANT ON 
+        X AND T, returning a constant value. Compares result to a known (hand calculated) A_FE and asserts that they are the same.
         kappa function used is  :   kappa(x,t) = 1 
         '''
         T,L,mx,mt = 1,1,5,3
@@ -99,8 +237,7 @@ class TestStringMethods(unittest.TestCase):
             return k
 
         t,x = get_grid_space(T,L,mt,mx) 
-        deltax = x[1] - x[0]            # gridspacing in x
-        deltat = t[1] - t[0]
+        deltat, deltax = get_grid_spacing(t,x)            # gridspacing in x and t
         lmbda = 1*deltat/(deltax**2)  # kappa is 1
 
         # define true matrix
@@ -117,7 +254,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue(np.all(np.isclose(A_true,A)))
 
     def test_forw_eul_matrix_kappaVariable_x(self):
-        ''' Generates A_FE matrix for a variable diffusion coefficient, dependent on x. Compares result to a 
+        ''' Generates A_FE matrix for a VARIABLE diffusion coefficient, DEPENDANT ON X. Compares result to a 
         known (hand calculated) A_FE and asserts that they are the same.
         kappa function used is  :   kappa(x,t) = 2x
         '''
@@ -127,16 +264,14 @@ class TestStringMethods(unittest.TestCase):
             k =2*x
             return k
 
-        t,x = get_grid_space(T,L,mt,mx) 
-        deltax = x[1] - x[0]            # gridspacing in x
-        deltat = t[1] - t[0]
+        t,x = get_grid_space(T,L,mt,mx)  
 
         # define true matrix
-        A_true = np.zeros((mx-1,mx-1))
-        A_true[0,:2] = np.array([1, 5])
-        A_true[1,:3] = np.array([-5/3, -17/3,25/3])
-        A_true[2,1:4] = np.array([5/3,-37/3,35/3])
-        A_true[3,2:] = np.array([5,-19])
+        A_true = np.zeros((1,mx-1,mx-1))
+        A_true[:,0,:2] = np.array([1, 5])
+        A_true[:,1,:3] = np.array([-5/3, -17/3,25/3])
+        A_true[:,2,1:4] = np.array([5/3,-37/3,35/3])
+        A_true[:,3,2:] = np.array([5,-19])
 
         # get matrix from predefined function
         A = forw_eul_pde_matrix_varKappa_x(t,x,kappa)
@@ -144,7 +279,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue(np.all(np.isclose(A_true,A)))
 
     def test_forw_eul_matrix_kappaConstant_x(self):
-        ''' Generates A_FE matrix for a constant diffusion coefficient, where kappa is a function dependent on x but returning a constant. 
+        ''' Generates A_FE matrix for a CONSTANT diffusion coefficient, where kappa is a function DEPENDANT ON X but returning a constant. 
         Compares result to a known (hand calculated) A_FE and asserts that they are the same.
         kappa function used is  :   kappa(x,t) = 1 
         '''
@@ -155,8 +290,7 @@ class TestStringMethods(unittest.TestCase):
             return k
 
         t,x = get_grid_space(T,L,mt,mx) 
-        deltax = x[1] - x[0]            # gridspacing in x
-        deltat = t[1] - t[0]
+        deltat, deltax = get_grid_spacing(t,x)  
         lmbda = 1*deltat/(deltax**2)  # kappa is 1
 
         # define true matrix
@@ -169,6 +303,30 @@ class TestStringMethods(unittest.TestCase):
 
         # get matrix from predefined function
         A = forw_eul_pde_matrix_varKappa_x(t,x,kappa)
+
+        self.assertTrue(np.all(np.isclose(A_true,A)))
+
+    def test_forw_eul_matrix_kappaConstant_x(self):
+        ''' Generates A_FE matrix for a CONSTANT diffusion coefficient, where kappa is a constant. 
+        Compares result to a known (hand calculated) A_FE and asserts that they are the same.
+        '''
+        T,L,mx,mt = 1,1,5,3
+        kappa = 1.0
+
+        t,x = get_grid_space(T,L,mt,mx) 
+        deltat, deltax = get_grid_spacing(t,x)  
+        lmbda = 1*deltat/(deltax**2)  # kappa is 1
+
+        # define true matrix
+        #tridiag(lambda, 1-2lambda, lambda)
+        A_true = np.zeros((1,mx-1, mx-1))
+        A_true[:,0,:2] = np.array([1-2*lmbda,lmbda])
+        A_true[:,1,:3] = np.array([lmbda, 1-2*lmbda,lmbda])
+        A_true[:,2,1:4] = np.array([lmbda, 1-2*lmbda,lmbda])
+        A_true[:,3,2:] = np.array([lmbda, 1-2*lmbda])
+
+        # get matrix from predefined function
+        A = forw_eul_pde_matrix(lmbda, mx)
 
         self.assertTrue(np.all(np.isclose(A_true,A)))
 
