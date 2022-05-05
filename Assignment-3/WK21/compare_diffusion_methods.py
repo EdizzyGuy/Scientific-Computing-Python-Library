@@ -28,7 +28,7 @@ def u_exact(x,t):
     return y
 
 # Set numerical parameters
-mx = 10     # number of gridpoints in space
+mx = 10    # number of gridpoints in space
 #INCREASING MX FROM 20 TO 40 INCREASED ACCURACY
 #mt = find_suitable_mt(mx, kappa, L, T)   # number of gridpoints in time
 mt = 100

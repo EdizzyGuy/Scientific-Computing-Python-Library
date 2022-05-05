@@ -6,7 +6,61 @@ from scipy.integrate import solve_ivp
 import time
 # MAKE THIS WORK WITH NUMPY SOLVER
 
+#TD
+def mean_square_error(A, B, ax=None):
+    """ Returns the mean of the square error between elements in A and B along a defined axis. Axis is defaulted
+    to 'None', i.e. will return mean of square error between ALL elements. A and B must be the same size.
+    
+    Args:
+        A (np.ndarray) : numpy array to compare/ be compared with B.
+        B (np.ndarray) : numpy array to compare/ be compared with A.
+        ax (int)       : axis along to take mean of the square error.
+        
+    Returns:
+        mse            : Mean of the square error between ALL elements in A and B.
+    """
+    mse = (np.square(A - B)).mean(ax)
+    return mse
 
+#TD
+def abs_error(A, B):
+    """ Returns summation of absolute error between arrays A and B. A and B must be the same size.
+    
+    Args:
+        A (np.ndarray)    : numpy array to compare/ be compared with B
+        B (np.ndarray)    : numpy array to compare/ be compared with A
+        
+    Returns:
+        abs_error (float) : Summation of absolute error between elements in A and B
+    """
+    error = A - B
+    abs_error = np.sum(np.abs(error))
+    return abs_error
+
+#TD
+def mean_rel_error(A, B):
+    """ Returns the average value of A / B (performed elementwise) and is used in cases where values in B and A
+    are too close to 0 for absolute error or mean squared error to carry meaning. . A and B must be the same size.
+    
+    Args: 
+        A (np.ndarray)    : Numpy array to compare with, and find relative error against, referance array B.
+        B (np.ndarray)    : Referance array that is being compared with A
+        
+    Returns:
+        rel_error (float) : Average value of the elementwise divison of A and B
+    """
+    division_array = np.divide(A, B)
+
+    valid_terms = np.count_nonzero(~np.isnan(division_array))  # number of non Nan values
+    valid_terms -= np.count_nonzero(division_array==0) + np.count_nonzero(division_array==np.inf)
+    division_array = np.nan_to_num(division_array, copy=True, nan=0.0, posinf=None, neginf=None)  #replace all nan with 0
+    
+    rel_error = np.sum(np.abs(division_array))
+    mean_rel_error = rel_error / valid_terms  # devide by num of terms that werent nan to retain accuracy
+
+    return mean_rel_error
+
+#T
 def get_phase_portrait(dXdt, init_cond, solve_for, solver=solve_ode, title=None, xlabel=None, ylabel=None, portrait_variables=(0,1), title_size=11, centre_spines=True,
                        deltat_max=np.inf, method='RK4', time_first=True, solver_args=dict(), t=None, args=()):
     """will solve a system of ODE's and plot their phase portrait. ONLY WORKS IN 2D
@@ -76,17 +130,15 @@ def display_dynamic_solution(u, x, t, title, comp_time=10):
     animation = FuncAnimation(fig, update, interval=period, frames=len(t))
     plt.show() 
 
-
-def mean_square_error(A, B, ax=None):
-    mse = (np.square(A - B)).mean(ax)
-    return mse
-
-def abs_error(A, B):
-    error = A - B
-    abs_error = np.sum(np.abs(error))
-    return abs_error
-
+#TD
 def isInteger(N):
+    """ Function that will return True if the inputted value is an integer, and false if not
+    
+    Args:
+        N (float) : Numerical object to evaluate
+        
+    Returns:
+        (bool)    : Result of the evaluation"""
     X = int(N)
  
     diff = N - X
@@ -95,7 +147,21 @@ def isInteger(N):
          
     return False
 
+#D
 def time_function(func, count=1, args=tuple(), kwargs=dict()):
+    """ Runs the inputted function {count} number of times and returns the average and the standard deviation
+    of these durations. Can take arguements and key word arguements to the function.
+    
+    Args:
+        func (callable)     : function to time.
+        count (int)         : number of times to time function.
+        args (tuple)        : arguements to be passed to the func, in order
+        kwargs (dictionary) : Key value pairs of key-word to arguement, to be passed into func
+        
+    Returns:
+        avg (float)         : Average duration taken to evaluate function
+        std (float)         : Standard deviation for said averages
+    """
     times = np.zeros(count)
     for i in range(count):
         start = time.time()

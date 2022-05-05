@@ -33,7 +33,7 @@ RHS FUNCTION
     A*u[j+1] = B*u[j] + dt*F[i,j+1/2]
     compute RHS and apply Mx=b as usual.
     
-    All these act in the same as the zero boundary condition therefore can just define a parameter F and initialise to 0 such that it is the function F. This will work in both cases.
+    All these act in the same way as the zero boundary condition therefore can just define a parameter F and initialise to 0 such that it is the function F. This will work in both cases.
 
 VARIABLE DIFFUSION COEFFICIENT
     could create a kappa matrix with all the values of kappa in the gridspace. This will then be used as referance 

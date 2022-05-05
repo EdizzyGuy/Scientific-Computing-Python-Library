@@ -1,0 +1,26 @@
+
+def get_forward_euler_matrix_x(t,x,kappa):
+    mx = len(x) -1
+    deltat, deltax = get_grid_spacing(t,x)
+    c = deltat / deltax**2
+
+    A = np.empty((mx-1,mx-1))
+    diag_array = np.array([1-c*(kappa(x[i]+deltax/2) + kappa(x[i]-deltax/2)) for i in range(0,mx-1)])
+    upper_diag_array = np.array([c*kappa(x[i]+deltax/2) for i in range(1,mx-1)])
+    lower_diag_array = np.array([c*kappa(x[i]-deltax/2) for i in range(0,mx-2)])
+    A_1, A_2, A_3 = np.diag(diag_array), np.diag(upper_diag_array, k=1), np.diag(lower_diag_array, k=-1)
+
+    A = A_1 + A_2 + A_3
+    return A
+
+
+
+def forw_eul_pde_step(u_j, lmbda, mx):
+        # Solve the PDE: loop over all time points
+    # Forward Euler timestep at inner mesh points
+    # PDE discretised at position x[i], time t[j]
+    u_jp1 = np.zeros(u_j.shape)  # boundary condition set
+    for i in range(1, mx):
+        u_jp1[i] = u_j[i] + lmbda*(u_j[i-1] - 2*u_j[i] + u_j[i+1])  # find solution forward 1 step in time
+
+    return u_jp1

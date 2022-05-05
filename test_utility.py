@@ -4,6 +4,9 @@ from scipy.integrate import solve_ivp
 
 import unittest
 
+''' run by passing python -m unittest -v test_utility to cmd 
+TEST FUNCTIONS MUST START WITH test'''
+
 def dX_dt(t, X):
     X_dot = np.array([X[1], -X[0]])
     return X_dot
@@ -19,7 +22,7 @@ class TestStringMethods(unittest.TestCase):
         period = 2 *np.pi
         path = get_phase_portrait(dX_dt, init_cond, solve_for=(0, period))
 
-        self.assertTrue(np.all(np.isclose(path[0], path[-1]), atol=atol))
+        self.assertTrue(np.all(np.isclose(path[0], path[-1], atol=atol)))
 
     def test_get_phase_portrait_scipySolver(self):
         # known period of 2*pi THIS IS KINDA TESTING SOLVER AGAIN
@@ -57,6 +60,15 @@ class TestStringMethods(unittest.TestCase):
         rel_err = mean_rel_error(b,a)
 
         self.assertTrue(true_rel_err == rel_err)
+
+    def test_isInteger(self):
+        a = 1 + 1e-10
+        b = 0.2
+
+        true_ans = (True, False)
+        ans = (isInteger(a), isInteger(b))
+
+        self.assertTrue(ans == true_ans)
         
 
 

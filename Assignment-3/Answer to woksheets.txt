@@ -54,7 +54,7 @@
 	Showcases draft of backward euler solver and also shows that it solves the equation adequetly.
 	Also uses the back_eul_heat_eq from solve_heat_eq2.py to solve the heat equation and obtains the same results
 
-			myCrankNicholson1Ddiffusion.py:
+		myCrankNicholson1Ddiffusion.py:
 	showcases script applying crank nicholson method and also uses function defined in solve_heat_eq2 to solve the heat
 	eq again and compares results. The function defined in solve_heat_eq2 is faster and works adequately. Interestingly
 	when solving A_CN * u_j+1 = B_CN * u_j a much superior performance is observed through solving this equation via a 
@@ -64,7 +64,7 @@
 	inversion and in the case of an error to use linalg.solve
 	In terms of their accuracy (metric mean square error) both perform equally.
 
-			compare_diffusion_methods.py:
+		compare_diffusion_methods.py:
 	Gets metrics for accuracy and speed for each method.
 	From comparison we can see that, for using the same number of gridpoints in space and time, forward euler is fastest
 	2nd is crank nicholson and 3rd is backward euler. Crank nicholson has the highest accuracy, followed by backward euler
@@ -84,6 +84,34 @@
 		plot_deltat_vs_acc
 
 
-5
+5		EXTENSIONS
+
+		VARIABLE DIFFUSION COEFFICIENT
+
+	I have chosen to make my variable diffusion coefficient able to accept functions with arguements x and t, since gridpoints are
+	predefined and kappa is a known function this was not hard to implement in theory. To accomplish the task I made the A_FE matrix
+	3 dimensional where the first index will grab the suitable A_FE matrix for the time step at hand (due to being a function of
+	time aswell now, the matrix will change for each timestep). Tests have shown my method to be valid.
+	
+		compare_forw_eul_matrices.py
+	From python script we can see that the method is somewhat inefficient though, I was originally
+	thinking of simply passing a kappa_func as arguement to pde solver (where for a constant kappa the function would always return
+	a constant), but now I think the best course of action would be to include a wrapper function that has a match case statement to
+	distinguish between cases of constant kappa (and therefore quick to define matrix) and variable kappa. Maybe even an option for 
+	kappa not a function of t, since this should reduce the time taken to compute array {mt} fold.
+	Given that the size of the A_FE matrix defined in the new method within the script is a factor of 10000 times larger than the
+	matrix defined originally it is acctually surprising that the method did not take longer! There is no point in defining a function
+	for the case that kappa is a function of only t, since this would result in an array just as large as when dependent on x and t.
+
+	Comparing the original func get_forward_euler_matrix and the new function for variable lambda forw_eul_pde_matrix_varKappa_x we can
+	see that the latter still performs poorly... even though it is defining a matrix of the same shape. avg time for new:6e-04 and
+	old : 9e-05, even when the original matrix generator is put in a wrapper function that checks if kappa is variable via a match-case
+	statement. To combat this I have defined a new function for generating the matrix array that utilises the np.diag function. The end 
+	goal would be to hopefully simply input a function for kappa regardless whether or not it is constant or not and not sacrifice
+	performance too much. Unfortunately using np.diag proved to be (negligibly) slower. I think its best to be able to pass a constant or
+	a function as lambda and from there have the program analyse which one it is. This will reduce having numerous redundant parameters.
+
+	 FIND ANALYTICAL SOLUTION OF THE WAVE EQ FOR VARIABLE DIFFUSION TO USE AS TEST
+
 
 

@@ -1,0 +1,26 @@
+MEAN REL ERROR
+    made new function mean_rel_error but the function is generally accurate for large arrays due to 0's drastically 
+    dropping two arrays mean relative error. 
+    Have fixed this by making the summation not count any nan's, 0's or oo's
+    (i.e. doesnt count those elements into its length to then devide the sum by)
+    this is done because summation with nan/inf leads to nan/inf and then deviding doesnt do anything
+    also if A/B = 0 it could be the case that B is really small but A is 0 therefore in reality A/B should have been close
+    to 1 but is not therefore reject all 0's
+    bare in mind mx and mt will have impact on the accuracy of solutions therefore large values have been used in the tests.
+    e.g. for mx =10 and mt = 100 rel_err = 0.92
+        but for mx = 100 and mt = 10000 rel_error = 0.999
+
+using t and x to implicitly define deltax deltat mx and mt so that the list of parameters to keep is minimised (via
+get_grid_spacing)
+
+tested to see how long it is taking to evaluate if kappa is a function for forw_eul_diffusion to see if its worth
+taking out the function that generates matrix for a constant kappa and just use var kappa generating matrix all the
+time for the sake of simplicity.
+The way I have done this is by tracking the time for the generation of the forw_eul matrix, for a constant kappa
+between just after the if that checks if function is callable and to once the matrix is defined (using matrix 
+generator that takes kappa as a function) and also timing how long it takes to generate the matrix from before the 
+if statement to once the matrix is defined for the function that takes lambda to create the matrix. 
+The document {compare_forw_eul_matrices2} shows that using kappa as a function for constant kappa reduces speed by
+abit more than 5%.
+
+getting rid of singular method in solve diffusion because its obsolete
