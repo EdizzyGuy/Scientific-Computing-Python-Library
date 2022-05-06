@@ -23,7 +23,7 @@ the point before the end and append the value at the start to the end.
 add on the first element to the last afterwards
             FIND EQ FOR BACKWARD AND CRANK NICHOLSON
 
-RHS FUNCTION
+xx RHS FUNCTION
     dt*F(j+1) is just added to equation that gives u(j+1) for forward euler
 
     can use similar trick in backward euler where normally we would be solving A*u[j+1] = u[j] via Mx =b
@@ -35,7 +35,7 @@ RHS FUNCTION
     
     All these act in the same way as the zero boundary condition therefore can just define a parameter F and initialise to 0 such that it is the function F. This will work in both cases.
 
-VARIABLE DIFFUSION COEFFICIENT
+x VARIABLE DIFFUSION COEFFICIENT
     could create a kappa matrix with all the values of kappa in the gridspace. This will then be used as referance 
     for the different matrix generator methods!
 

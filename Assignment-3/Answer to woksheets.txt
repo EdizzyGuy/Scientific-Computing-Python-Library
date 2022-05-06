@@ -113,5 +113,14 @@
 
 	 FIND ANALYTICAL SOLUTION OF THE WAVE EQ FOR VARIABLE DIFFUSION TO USE AS TEST
 
+		RHS FUNCTION
+	realtively straightforward to implement, just defined an (initialised as 0) rhs function and adjusted step wise
+	function that calculates u at each time step to accomodate for the rhs function.
+	hardest part was finding analytical solutions to test against. 
+
+		DIRICHLET INHOMOGENOUS BOUNDARIES
+	Also relatively easy to implement where since forward euler only depends on the timestep before I can 
+	predefine values at the boundary for all time and not have problems
+
 
 

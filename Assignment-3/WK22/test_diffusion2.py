@@ -19,6 +19,7 @@ class TestStringMethods(unittest.TestCase):
     def test_forw_euler_diffusion_rhsFUNC_tx(self):
         '''Tests the numerical solution of 
         u_t = D*u_xx + f(t,x)    for u(t=0, x) = sin(pi*x/L) and f(t,x) = exp(t*-D*pi^2/L^2)*sin(pi*x/L)
+        and 0 dirichlet boundary conditions.
         
         Against the analytical solution:
         u(t,x) = L^2/(D*pi^2)*(1-exp(-D*pi^2*t/L^2))*sin(pi*x/L) + exp(-4*D*(pi^2/L^2)*t)*sin(2*pi*x/L)
@@ -51,9 +52,10 @@ class TestStringMethods(unittest.TestCase):
         t = np.linspace(0, T, mt+1)     # mesh points in time
 
         anal_u = u_exact(x,T)
-        args = (t,x,u_I,kappa,rhs_func)
+        args = (t,x,u_I,kappa)
+        kwargs = {'rhs_func': rhs_func}
 
-        u_fe = forw_eul_diffusion(*args)
+        u_fe = forw_eul_diffusion(*args, **kwargs)
         rel_error = mean_rel_error(u_fe[-1], anal_u)
 
         self.assertTrue(np.isclose(rel_error, 1, rtol=rtol))
@@ -61,6 +63,7 @@ class TestStringMethods(unittest.TestCase):
     def test_forw_euler_diffusion_rhsFUNC_x(self):
         '''Tests the numerical solution of 
         u_t = D*u_xx + f(x)    for u(t=0, x) = sin(pi*x/L) and f(x) = sin(pi*x/L)
+        and 0 dirichlet boundary conditions.
         
         Against the analytical solution:
         u(t,x) = L^2/(D*pi^2)*(1-exp(-D*pi^2*t/L^2))*sin(pi*x/L) + exp(-4*D*(pi^2/L^2)*t)*sin(2*pi*x/L)
@@ -93,9 +96,10 @@ class TestStringMethods(unittest.TestCase):
         t = np.linspace(0, T, mt+1)     # mesh points in time
 
         anal_u = u_exact(x,T)
-        args = (t,x,u_I,kappa,rhs_func)
+        args = (t,x,u_I,kappa)
+        kwargs = {'rhs_func': rhs_func}
 
-        u_fe = forw_eul_diffusion(*args)
+        u_fe = forw_eul_diffusion(*args,**kwargs)
         rel_error = mean_rel_error(u_fe[-1], anal_u)
 
         self.assertTrue(np.isclose(rel_error, 1, rtol=rtol))
@@ -186,7 +190,7 @@ class TestStringMethods(unittest.TestCase):
 
     def test_forw_euler_diffusion_kappaCONST(self):
         ''' Tests the numerical solution of 
-        u_t = D*u_xx    for u(t=0, x) = sin(pi*x/L)
+        u_t = D*u_xx    for u(t=0, x) = sin(pi*x/L) and 0 dirichlet boundary conditions.
         
         Against the analytical solution:
         exp(t*-D*pi^2/L^2)*sin(pi*x/L)

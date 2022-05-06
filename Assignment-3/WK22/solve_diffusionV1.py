@@ -117,7 +117,7 @@ def forw_eul_pde_matrix_varKappa_tx(t, x, kappa, args=tuple()):
     return A
 
 
-def forw_eul_diffusion(t, x, u_I, kappa, rhs_func=lambda t,x : 0, 
+def forw_eul_diffusion(t, x, u_I, kappa, l_boundary=lambda t:0, r_boundary=lambda t:0, rhs_func=lambda t,x:0, 
         u_I_args=tuple(), kappa_args=tuple(), func_args=tuple()):
     # only works for 0 boundary conditions
         
@@ -127,6 +127,11 @@ def forw_eul_diffusion(t, x, u_I, kappa, rhs_func=lambda t,x : 0,
     u = np.zeros((t.size, x.size))        # initialise solution of pde
     for i in range(0, mx+1):
         u[0,i] = u_I(x[i], *u_I_args)
+    # confirm boundary and initial condition are consistent
+#    assert np.isclose(u[0,0], l_boundary(t[0])) and np.isclose(u[0,-1], r_boundary(t[0]))
+#    # initialise boundary values
+#    u[:,0] = l_boundary(t)
+#    u[:,-1] = r_boundary(t)
     
 
     if callable(kappa):
@@ -160,8 +165,7 @@ def forw_eul_diffusion(t, x, u_I, kappa, rhs_func=lambda t,x : 0,
         oracle = 0
 
     for j in range(0, mt):
-        u[j+1,1:-1] = forw_eul_matrix[j*oracle] @ u[j,1:-1] + deltat*rhs_func(t[j+1],x[1:-1],*func_args) # the oracle shines
-        u[j+1,[0,-1]] = 0  # boundary conditions
+        u[j+1,1:-1] = forw_eul_matrix[j*oracle] @ u[j,1:-1] + deltat*rhs_func(t[j],x[1:-1],*func_args) # the oracle shines
 
     return u
 
