@@ -106,7 +106,7 @@ def get_phase_portrait(dXdt, init_cond, solve_for, solver=solve_ode, title=None,
     return path
     # STABLE LIMIT CYCLE -> it has been shown that solutions collapse to a stable equilibrium at b =0.27
 
-def display_dynamic_solution(u, x, t, title, comp_time=10):
+def display_dynamic_solution(u, x, t, title=None, comp_time=10):
     
     x_upper = x.max()
     x_lower = x.min()

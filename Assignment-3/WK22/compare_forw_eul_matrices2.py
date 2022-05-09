@@ -43,9 +43,9 @@ def test_forw_euler_diffusion():
     args2 = (t,x,u_I,1.0)
 
     s = time.time()
-    u_fe = forw_eul_diffusion(*args)
+    u_fe = forw_eul_diffusion_use_matrix(*args)
     e = time.time()
-    u_fe2 = forw_eul_diffusion(*args2)
+    u_fe2 = forw_eul_diffusion_use_matrix(*args2)
     f = time.time()
     rel_error = mean_rel_error(u_fe[-1], anal_u)
     rel_error2 = mean_rel_error(u_fe2[-1], anal_u)

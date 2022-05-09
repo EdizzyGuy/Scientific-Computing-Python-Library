@@ -14,7 +14,7 @@ using t and x to implicitly define deltax deltat mx and mt so that the list of p
 get_grid_spacing)
 
 VAR KAPPA
-    tested to see how long it is taking to evaluate if kappa is a function for forw_eul_diffusion to see if its worth
+    tested to see how long it is taking to evaluate if kappa is a function for forw_eul_diffusion_use_matrix to see if its worth
     taking out the function that generates matrix for a constant kappa and just use var kappa generating matrix all the
     time for the sake of simplicity.
     The way I have done this is by tracking the time for the generation of the forw_eul matrix, for a constant kappa
@@ -30,3 +30,47 @@ RHS func
     predefining this to be 0 (for the case that there is no rhs function) and therefore will work in generality
     function should always be given as a function of (t,x) extra args permitted but must be given as func_args 
     and func_kwargs
+
+INHOMOGENOUS DIRICHLET  
+    when trying to test this against a known analytical solution I have been running into real problems 
+    (acctually a wrong silution and not an easy bug). I have used my function display_dynamic_solution to help me
+    visualise and from there solve the problem. It has helped me understand that the initial condition is causing
+    the malfunction as it has been coded inaccurately.
+    After some more experimentation the bug has been singled out to be an mishap when applying the boundaries or
+    something similar in the matrix calculation (which is hopefully not true...) as when applying a single step the
+    solution is valid.
+    Furthermore the bug is definitely from the matrix calculation which is returning an incorrect value for the
+    calculation despite being given the correct matrix.
+
+    {showcase_matrix_inadequecy.py}
+    If you would like to recreate the bug put a breakpoint at line 79 and check that the matrices
+    n1 and m1 are not the same!
+    I have tried changing the data type of the array to longdouble, but I have had difficulties and a quick
+    has told me that the float128 support is lacking in numpy for windows... also they dont have float96.
+    As a final resort I tried using the matrix defined by taking a kappa function, ans setting that function
+    to return a constant value but this did not work either.
+    The file prints out relative errors of both methods and they can be seen to be very different, it also
+    displays the dynamic solution to visualise where the calculation has gone wrong.
+    ADDING STEPWISE FUNCTIONALITY BACK!
+
+is probably a bad idea to be storing so many matrices in hindsight, since it will lead to memory issues (A_FE 
+matrix for var kapp in t)
+
+changing bounds array to an array of integers will suffer from numerical overflow for really high values
+# of bounds (unrealistically high)  GET_FORW_EUL_MATRIX
+
+for find_suitable_mt/mx could expand function to take inputs of kappa as a function, and find the maximum value of kappa
+within the gridspace and calculate optimal_mt/mx accordingly
+
+could have found an elegant way to include all the function generators into a single function... but alas time
+    did it anyway
+
+could have matrix generator to ouput a mix of diags/sparse arrays since tdma takes diagonals... would be more efficient
+
+NEUMANN 
+
+    EXTENSION
+        would require work to get working with boundaries of partial du/dt. from the stencil we would have two unknowns
+        at the boundary - u(j) one grid point outside of the gridspace (which cant be solved for using the boundary cond.)
+        and an unknown of u(j+1) at the boundary (which is what we are solving for, and is included in the central diff.
+        expansion of the neumann boundary condition). Therefore we have two unknowns and 2 equations CAN BE SOLVED.

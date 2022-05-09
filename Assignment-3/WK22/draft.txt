@@ -2,7 +2,7 @@ CREATE TESTS FOR PDE
 add approximation parameter (fe be cn)
 find solutions of pde online to use as testing! (try 5)
 
-DIRICHLET BOUND COND.
+xDIRICHLET BOUND COND.
     boundary condition in 2d will need to have 'top/bot' or 'left/right' inputted in to know what the boundary is
 define boundary function, set it default to 0, define points in u along the boundary before calculation begins
 from here (because u init to 0) we can grab the neccessary vectors that will be added to our A_FE * u matrix,

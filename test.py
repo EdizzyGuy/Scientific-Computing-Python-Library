@@ -1,33 +1,31 @@
-ax = plt.subplot(111)
-x, y = np.array([11,10,11]), np.array([11,10,11])
-x_range, y_range = x.max()-x.min(), y.max() - y.min()
-x_neg_range = x.min()
-plt.plot(x,y)
+import sys
+import os
+path = sys.path[0]
+origin = os.path.dirname(path)
+sys.path.append(origin)
 
-plt.title('fuck eddie', fontsize=11)
-plt.xlabel(r'$\mathbf{u_2}$', va='centre', ha='centre')
-plt.ylabel(r'$\mathbf{u_1}$', rotation=0, va='centre', ha='centre')
+import unittest
+import numpy as np
+from ode import solve_ode
 
-plt.axhline(color='black', lw=0.5)
-plt.axvline(color='black', lw=0.5)
+def dx_dt(t, x):
+    x_dot = x
+    return x_dot
 
+def dX_dt(t, X):
+    X_dot = np.array([X[1], -X[0]])
+    return X_dot
 
-#ax.get_xaxis().set_label_coords(0.505, -0.05)
-#ax.get_yaxis().set_label_coords(-0.05,0.48)
-plt.show()
+def test_solve_ode_1D_RK45():
+    T = 42
+    # for x_dot = x and x0 = 1, analytical equation is x(t) = e^t
+    anal_eq = lambda t : np.exp(t)
+    anal_sol = anal_eq(T)
 
+    x0 = np.array([1])
+    path = solve_ode(dx_dt, x0, solve_for=[0, T], deltat_max=1e-03, method='RK45')
+    numer_sol = path[-1]
 
-centre_spines=True
-plt.figure(figsize=(8,6), dpi=100)
-ax = plt.subplot(111)
-# plot phase portrait
-plt.plot(x, y, color='blue')
+    return np.isclose(numer_sol, anal_sol, rtol=1e-02)
 
-if centre_spines:
-    plt.axhline(color='black', lw=0.5)
-    plt.axvline(color='black', lw=0.5)
-
-ax.set_xlabel(xlabel, va='centre', ha='centre')
-ax.set_ylabel(ylabel, rotation=0, va='bottom', ha='centre')
-ax.set_title(title, fontsize=title_size)
-plt.show()
+test_solve_ode_1D_RK45()

@@ -24,3 +24,183 @@ def forw_eul_pde_step(u_j, lmbda, mx):
         u_jp1[i] = u_j[i] + lmbda*(u_j[i-1] - 2*u_j[i] + u_j[i+1])  # find solution forward 1 step in time
 
     return u_jp1
+
+---------------------------------------------------------
+'''
+        for i in range(1, mx):
+            u[j+1,i] = u[j,i] + lmbda*(u[j,i-1] - 2*u[j,i] + u[j,i+1]) + deltat*rhs_func(t[j],x[i])  # find solution forward 1 step in time
+        u[j+1,0] = l_boundary(t[j+1])
+        u[j+1,-1] = r_boundary(t[j+1])
+        test = u_mat[j+1] == u[j+1]
+        '''
+
+def forw_eul_pde_matrix(lmbda, mx):
+    ''' Gets required matrix for using forward euler sicretisation to approximate the diffusion eq. for a CONSTANT diffusion constant
+    i.e. such that u[j+1] = forw_eul_matrix @ u[j]
+
+    Args:
+        lmbda (float) : value of lambda for values of kappa, deltat and deltax
+        mx (int)      : number of gridpoints in space
+
+    Returns:
+        A_FE          : matrix A_FE such that u[j+1] = A_FE @ u[j] for forward euler discretisation 
+    '''
+    # MATRIX IMPLEMENTATION
+    lambda_array = np.array([lmbda for i in range(mx+1)])
+    A_FE_1, A_FE_2, A_FE_3 = np.diag(1 - 2* lambda_array), np.diag(lambda_array[:-1], k=1), np.diag(lambda_array[:-1], k=-1)
+    A_FE = A_FE_1 + A_FE_2 + A_FE_3
+    A_FE[[0,-1],:] = 0
+
+    A_FE = A_FE[np.newaxis, ...]  # change dimensionality of A_FE so that code can work in generality
+    return A_FE
+
+def forw_eul_diffusion_use_matrix(t, x, u_I, kappa, l_boundary=lambda t:0, r_boundary=lambda t:0, rhs_func=lambda t,x:0, 
+        u_I_args=tuple(), kappa_args=tuple(), func_args=tuple()):
+        
+    deltat, deltax = get_grid_spacing(t,x)            
+    mt, mx = int(t[-1] / deltat), int(x[-1] / deltax)
+    
+    u = np.zeros((t.size, x.size))        # initialise solution of pde
+    for i in range(0, mx+1):
+        u[0,i] = u_I(x[i], *u_I_args)
+    # confirm boundary and initial condition are consistent
+    assert np.isclose(u[0,0], l_boundary(t[0])) and np.isclose(u[0,-1], r_boundary(t[0]))
+    
+    if callable(kappa):
+        args = inspect.getfullargspec(kappa).args
+        xx = np.linspace(x[0],x[-1],250)  # will be used to analyse stability criteria 
+        kappa_star = 1/2 * deltax**2/deltat
+
+        if 't' in args:
+            # is not worth checking stability in case of t dependence since evaluated array would be massive!
+            forw_eul_matrix = forw_eul_pde_matrix_varKappa_tx(t,x,kappa,*kappa_args)
+            
+            # this variable will tell the program whether there will be a different A matrix at each time step
+            # see below underneath the termination of the overhanging if statement
+            oracle = 1  
+        else:
+            # check stability criterion
+            kappa_xx = kappa(xx, *kappa_args)
+            assert np.all(kappa_xx > 0), 'Stability criteria of forward Euler unsatisfied. Solutions will be inaccurate.\nExiting...'
+
+            if np.any(kappa_xx < kappa_star):
+                print('WARNING : stability criterion of forward euler may not be met, and solutions could possibly be inaccurate.\nContinuing...')
+
+            forw_eul_matrix = forw_eul_pde_matrix_varKappa_x(t,x,kappa,*kappa_args)
+            oracle = 0
+    else:  # constant kappa
+        # check if stability criteria is met
+        lmbda = kappa*deltat/(deltax**2) 
+        assert lmbda <= 0.5, 'Stability criteria of forward Euler unsatisfied. Solutions will be inaccurate. Exiting...'
+
+        forw_eul_matrix = forw_eul_pde_matrix(lmbda, mx)
+        oracle = 0
+
+    for j in range(0, mt):
+        u[j+1,:] = forw_eul_matrix[j*oracle] @ u[j,:] + deltat*rhs_func(t[j],x[:],*func_args) # the oracle shines
+        u[j+1,[0,-1]] = [l_boundary(t[j+1]), r_boundary(t[j+1])]
+    return u
+
+def test_forw_euler_diffusion_nohomo_dirich():
+        '''Tests the numerical solution of 
+        u_t = u_xx + x    for u(t=0, x) = 3*sin(2*pi*x/L) + 2(1-x)
+        and inhomogenous dirichlet boundary conditions : u(0,t) = 2; u(L,t) = t
+        
+        Against the analytical solution:
+        u(t,x) = 3*sin(2*pi*x)*exp(-4*pi^2*t) +2 + (t-2)*x
+
+        Where L = length of spacial domain, 
+        TESTING WHETHER FORWARD EULER CAN HANDLE NON HOMOGENOUS DIRICHLET BOUNDARIES
+        '''
+        rtol=1e-02
+
+        L=1.0         # length of spatial domain
+        T=0.5         # total time to solve for
+        kappa = 1.0    
+
+        def u_I(x):
+            # initial temperature distribution
+            y = 3*np.sin(2*pi*x) + 2*(1-x)
+            return y
+        def rhs_func(t,x):
+            f = x
+            return f
+        def u_exact(x,t):
+            # the exact solution
+            y = 3*np.sin(2*pi*x)*np.exp(-4*pi**2*t) +2 + (t-2)*x
+            return y
+        #u(0,t) = 2; u(L,t) = t
+        l_bound = lambda t : 2
+        r_bound = lambda t : t
+        
+        mx = 100
+        mt = 10000
+
+        t, x = get_grid_space(T,L,mt,mx)     # mesh points in space and time
+
+        anal_u = u_exact(x,T)
+        args = (t,x,u_I,kappa)
+        kwargs = {'l_boundary':l_bound,'r_boundary':r_bound,'rhs_func': rhs_func}
+
+        u_fe = forw_eul_diffusion_use_matrix(*args, **kwargs)
+        rel_error = mean_rel_error(u_fe[-1], anal_u)
+
+        return u_fe, rel_error
+
+u, x, t, real_u = test_forw_euler_diffusion_nohomo_dirich()
+display_dynamic_solution(u,x,t)
+display_dynamic_solution(real_u,x,t)
+
+print('yay')
+-------------------------------------------------------------------------------
+def forw_eul_lambda_at_boundaries(t,x,kappa,args=tuple(),t_dep=False):
+
+    oracle = 0
+    if t_dep == True:
+        oracle = 1
+        Kappa = kappa
+    else:
+        oracle = 0
+        # artificial t dependency so that two functions need not be made
+        Kappa = lambda t,x,*args : kappa(x, *args)
+
+    deltat, deltax = get_grid_spacing(t,x)
+    mt = len(t) -1
+
+    boundary_lambdas = np.zeros((oracle*(mt-1) +1,2))
+    for j in range(oracle*(mt-1) +1):  # guaranteed to be 1 or mt
+        # left : k_i-1/2
+        # right : k_i+1/2
+        boundary_lambdas[j,0] = Kappa(t[j],x[1] -deltax/2)* deltat / deltax**2
+        boundary_lambdas[j,-1] = Kappa(t[j],x[-2] +deltax/2)* deltat / deltax**2
+    
+    return boundary_lambdas
+
+mt, T = 3, 3
+mx, L = 10,1.0
+
+t,x = get_grid_space(T,L,mt,mx)
+
+def kappa_x(x):
+    return 2*x
+def kappa_tx(t,x):
+    return 2*x-t
+
+bound_lambda_x = forw_eul_lambda_at_boundaries(t,x,kappa_x,t_dep=False)
+bound_lambda_tx = forw_eul_lambda_at_boundaries(t,x,kappa_tx,t_dep=True)
+
+true_lambda_x = np.array([[10, 190]])
+true_lambda_tx = np.array([[  10.,  190.],
+                           [ -90.,   90.],
+                           [-190.,  -10.]])
+
+true_x,true_tx = np.all(np.isclose(bound_lambda_x, true_lambda_x)),np.all(np.isclose(bound_lambda_tx, true_lambda_tx))
+
+if true_x and true_tx:
+    print('yay')
+
+lr_bound =  np.array([[1,1]])
+np.multiply(lr_bound,true_lambda_tx[0])
+np.multiply(lr_bound,true_lambda_x)
+print('yay')
+-----------------------------------------------------------------------------------------------------------------
