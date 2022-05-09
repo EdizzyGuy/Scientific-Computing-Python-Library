@@ -263,7 +263,7 @@ def forw_eul_diffusion_use_matrix(t, x, u_I, kappa, l_boundary=lambda t:0, r_bou
         xx = np.linspace(x[0],x[-1],250)  # will be used to analyse stability criteria 
         kappa_star = 1/2 * deltax**2/deltat
 
-        if any(['t', 'T',"time"]) in args:  #HAS KIERAN FCKED ME UP?
+        if any(['t', 'T',"time"]) in args: 
             # is not worth checking stability in case of t dependence since evaluated array would be massive!
             forw_eul_matrix = forw_eul_pde_matrix_varKappa_tx(t,x,kappa,*kappa_args, **kappa_kwargs)
             bound_lambda = forw_eul_diffusion_boundary(t,x,kappa,t_dep=True,args=kappa_args,kwargs=kappa_kwargs)

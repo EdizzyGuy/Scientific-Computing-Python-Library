@@ -5,10 +5,7 @@ sys.path.append(origin)
 from utility import *
 
 import numpy as np
-from solve_heat_eq3 import *
 from solve_diffusionV3 import *
-from scipy.integrate import solve_ivp
-from math import pi
 
 import unittest
 
@@ -58,8 +55,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -80,8 +81,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -103,8 +108,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -126,8 +135,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -150,8 +163,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -173,8 +190,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -195,8 +216,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -217,8 +242,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -239,8 +268,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -262,8 +295,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -284,8 +321,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -308,8 +349,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -334,8 +379,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -360,8 +409,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -387,8 +440,12 @@ class TestStringMethods(unittest.TestCase):
         mx, L = 4, 4
         mt, T = 2, 2
 
-        def kappa(t,x):
+        def k(t,x):
             return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
 
         t,x = get_grid_space(T,L,mt,mx)
 
@@ -405,5 +462,317 @@ class TestStringMethods(unittest.TestCase):
         CN_sparse_A, CN_sparse_B = get_pde_solving_matrix(t,x,kappa,boundary_conditions, discretization='Crank Nicholson')
         CN_A, CN_B= CN_sparse_A.toarray(), CN_sparse_B.toarray()
         validity = np.all(np.isclose(CN_A, true_mat_A)) and np.all(np.isclose(CN_B, true_mat_B))         
+        self.assertTrue(validity)
+
+    def test_conditional_effects_forw_eul_DoubleDirichlet(self):
+        T,L = 2,4
+        mt,mx = 2,4
+
+        t,x = get_grid_space(T,L,mt,mx)
+
+        def left_boundary(t):
+            return 2*t+2
+        def right_boundary(t):
+            return -3*t + 4
+
+        def k(t,x):
+            return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
+        
+        true_fe_dd = np.array([1,14])
+
+        boundary_conditions = [('Dirichlet', left_boundary), ('Dirichlet', right_boundary)]
+        fe_dd = get_condition_vector(t,x,kappa,boundary_conditions,discretization='Forward Euler')
+
+        validity = np.all(np.isclose(true_fe_dd, fe_dd))
+        self.assertTrue(validity)
+
+    def test_conditional_effects_forw_eul_DirichletNeumann(self):
+        T,L = 2,4
+        mt,mx = 2,4
+
+        t,x = get_grid_space(T,L,mt,mx)
+
+        def left_boundary(t):
+            return 2*t+2
+        def right_boundary(t):
+            return -3*t + 4
+
+        def k(t,x):
+            return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
+        
+        true_fe_dn = np.array([1,36])
+
+        boundary_conditions = [('Dirichlet', left_boundary), ('Neumann', right_boundary)]
+        fe_dn = get_condition_vector(t,x,kappa,boundary_conditions,discretization='Forward Euler')
+
+        validity = np.all(np.isclose(true_fe_dn, fe_dn))
+        self.assertTrue(validity)
+
+    def test_conditional_effects_forw_eul_NeumannDirichlet(self):
+        T,L = 2,4
+        mt,mx = 2,4
+
+        t,x = get_grid_space(T,L,mt,mx)
+
+        def left_boundary(t):
+            return 2*t+2
+        def right_boundary(t):
+            return -3*t + 4
+
+        def k(t,x):
+            return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
+        
+        true_fe_nd = np.array([2,14])
+
+        boundary_conditions = [('Neumann', left_boundary), ('Dirichlet', right_boundary)]
+        fe_nd = get_condition_vector(t,x,kappa,boundary_conditions,discretization='Forward Euler')
+
+        validity = np.all(np.isclose(true_fe_nd, fe_nd))
+        self.assertTrue(validity)
+
+    def test_conditional_effects_forw_eul_DoubleNeumann(self):
+        T,L = 2,4
+        mt,mx = 2,4
+
+        t,x = get_grid_space(T,L,mt,mx)
+
+        def left_boundary(t):
+            return 2*t+2
+        def right_boundary(t):
+            return -3*t + 4
+
+        def k(t,x):
+            return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
+        
+        true_fe_nn = np.array([2,36])
+
+        boundary_conditions = [('Neumann', left_boundary), ('Neumann', right_boundary)]
+        fe_nn = get_condition_vector(t,x,kappa,boundary_conditions,discretization='Forward Euler')
+
+        validity = np.all(np.isclose(true_fe_nn, fe_nn))
+        self.assertTrue(validity)
+
+    def test_conditional_effects_backw_eul_DoubleDirichlet(self):
+        T,L = 2,4
+        mt,mx = 2,4
+
+        t,x = get_grid_space(T,L,mt,mx)
+
+        def left_boundary(t):
+            return 2*t+2
+        def right_boundary(t):
+            return -3*t + 4
+
+        def k(t,x):
+            return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
+        
+        true_be_dd = np.array([6,9/2])
+
+        boundary_conditions = [('Dirichlet', left_boundary), ('Dirichlet', right_boundary)]
+        be_dd = get_condition_vector(t,x,kappa,boundary_conditions,discretization='Backward Euler')
+
+        validity = np.all(np.isclose(true_be_dd, be_dd))
+        self.assertTrue(validity)
+
+    def test_conditional_effects_backw_eul_DirichletNeumann(self):
+        T,L = 2,4
+        mt,mx = 2,4
+
+        t,x = get_grid_space(T,L,mt,mx)
+
+        def left_boundary(t):
+            return 2*t+2
+        def right_boundary(t):
+            return -3*t + 4
+
+        def k(t,x):
+            return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
+
+        true_be_dn = np.array([6,11])
+
+        boundary_conditions = [('Dirichlet', left_boundary), ('Neumann', right_boundary)]
+        be_dn = get_condition_vector(t,x,kappa,boundary_conditions,discretization='Backward Euler')
+
+        validity = np.all(np.isclose(true_be_dn, be_dn))
+        self.assertTrue(validity)
+
+    def test_conditional_effects_backw_eul_NeumannDirichlet(self):
+        T,L = 2,4
+        mt,mx = 2,4
+
+        t,x = get_grid_space(T,L,mt,mx)
+
+        def left_boundary(t):
+            return 2*t+2
+        def right_boundary(t):
+            return -3*t + 4
+
+        def k(t,x):
+            return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
+        
+        true_be_nd = np.array([-4,9/2])
+
+        boundary_conditions = [('Neumann', left_boundary), ('Dirichlet', right_boundary)]
+        be_nd = get_condition_vector(t,x,kappa,boundary_conditions,discretization='Backward Euler')
+
+        validity = np.all(np.isclose(true_be_nd, be_nd))
+        self.assertTrue(validity)
+
+    def test_conditional_effects_backw_eul_DoubleNeumann(self):
+        T,L = 2,4
+        mt,mx = 2,4
+
+        t,x = get_grid_space(T,L,mt,mx)
+
+        def left_boundary(t):
+            return 2*t+2
+        def right_boundary(t):
+            return -3*t + 4
+
+        def k(t,x):
+            return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
+        
+        true_be_nn = np.array([-4,11])
+
+        boundary_conditions = [('Neumann', left_boundary), ('Neumann', right_boundary)]
+        be_nn = get_condition_vector(t,x,kappa,boundary_conditions,discretization='Backward Euler')
+
+        validity = np.all(np.isclose(true_be_nn, be_nn))
+        self.assertTrue(validity)
+
+    def test_conditional_effects_crankNic_DoubleDirichlet(self):
+        T,L = 2,4
+        mt,mx = 2,4
+
+        t,x = get_grid_space(T,L,mt,mx)
+
+        def left_boundary(t):
+            return 2*t+2
+        def right_boundary(t):
+            return -3*t + 4
+
+        def k(t,x):
+            return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
+        
+        true_cn_dd = np.array([3,10])
+
+        boundary_conditions = [('Dirichlet', left_boundary), ('Dirichlet', right_boundary)]
+        cn_dd = get_condition_vector(t,x,kappa,boundary_conditions,discretization='Crank Nicholson')
+
+        validity = np.all(np.isclose(true_cn_dd, cn_dd))
+        self.assertTrue(validity)
+
+    def test_conditional_effects_crankNic_DirichletNeumann(self):
+        T,L = 2,4
+        mt,mx = 2,4
+
+        t,x = get_grid_space(T,L,mt,mx)
+
+        def left_boundary(t):
+            return 2*t+2
+        def right_boundary(t):
+            return -3*t + 4
+
+        def k(t,x):
+            return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
+
+        true_cn_dn = np.array([3,25])
+
+        boundary_conditions = [('Dirichlet', left_boundary), ('Neumann', right_boundary)]
+        cn_dn = get_condition_vector(t,x,kappa,boundary_conditions,discretization='Crank Nicholson')
+
+        validity = np.all(np.isclose(true_cn_dn, cn_dn))
+        self.assertTrue(validity)
+
+    def test_conditional_effects_crankNic_NeumannDirichlet(self):
+        T,L = 2,4
+        mt,mx = 2,4
+
+        t,x = get_grid_space(T,L,mt,mx)
+
+        def left_boundary(t):
+            return 2*t+2
+        def right_boundary(t):
+            return -3*t + 4
+
+        def k(t,x):
+            return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
+            
+        true_cn_nd = np.array([0,10])
+
+        boundary_conditions = [('Neumann', left_boundary), ('Dirichlet', right_boundary)]
+        cn_nd = get_condition_vector(t,x,kappa,boundary_conditions,discretization='Crank Nicholson')
+
+        validity = np.all(np.isclose(true_cn_nd, cn_nd))
+        self.assertTrue(validity)
+
+    def test_conditional_effects_crankNic_DoubleNeumann(self):
+        T,L = 2,4
+        mt,mx = 2,4
+
+        t,x = get_grid_space(T,L,mt,mx)
+
+        def left_boundary(t):
+            return 2*t+2
+        def right_boundary(t):
+            return -3*t + 4
+
+        def k(t,x):
+            return x + t
+
+        #convert to format used in pde solver
+        def kappa(t,x,args,kwargs):
+            return k(t,x,*args,**kwargs)
+        
+        true_cn_nn = np.array([0,25])
+
+        boundary_conditions = [('Neumann', left_boundary), ('Neumann', right_boundary)]
+        cn_nn = get_condition_vector(t,x,kappa,boundary_conditions,discretization='Crank Nicholson')
+
+        validity = np.all(np.isclose(true_cn_nn, cn_nn))
         self.assertTrue(validity)
 

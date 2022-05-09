@@ -67,6 +67,18 @@ could have found an elegant way to include all the function generators into a si
 
 could have matrix generator to ouput a mix of diags/sparse arrays since tdma takes diagonals... would be more efficient
 
+would be more efficient to exclude forward euler from get_conditional_effect but I havnt for the sake of prettyness and completeness
+
+write about derivation of algorithm used in get_effects_from_conditions
+
+cannot have kappa dependent on u since u_xx is a thing and it will be complicated... EXTENSION
+
+should have made two cases for kappa variable in t and not (instead of passing parameter), but this would make code complicated
+
+could have a parameter passed that tells function if boundary is homogenous dirichlet this would save alot of calculation for the condition vector
+
+F(t,x,u) will not work for crank nickolson or backward euler due to where it has been discretized
+
 NEUMANN 
 
     EXTENSION

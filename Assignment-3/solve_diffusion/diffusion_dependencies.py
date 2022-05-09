@@ -94,7 +94,9 @@ def get_grid_spacing(t,x):
     deltat = t[1] - t[0]            # gridspacing in t
     return deltat, deltax
 
-def get_pde_solving_matrix(t,x,kappa,boundary_conditions=[('Dirichlet',), ('Dirichlet',)], time_index=0, discretization='Crank Nicholson'):
+
+def get_pde_solving_matrix(t,x,kappa,boundary_conditions=[('Dirichlet',), ('Dirichlet',)], time_index=0, discretization='Crank Nicholson',
+    kappa_args=tuple(), kappa_kwargs=dict()):
     ''' Will generate the neccessary sparse matrix to solve the pde question numerically, dependent on boundary conditions, and the discretization
     that has been used. Valid boundary_conditions are ['Dirichlet', 'Neumann', 'Periodic'] and valid discretizations are 
     ['Forward Euler', 'Backward Euler', 'Crank Nicholson'].
@@ -127,29 +129,21 @@ def get_pde_solving_matrix(t,x,kappa,boundary_conditions=[('Dirichlet',), ('Diri
 
 =========================================================================================================================================================================================================    
     Args:
-        t (np.ndarray)                          : discretized values in time of the grid space
-        x (np.ndarray)                          : discretuzed values of x in the grid space
-        boundary_conditions (list)                   : list of classifications of the boundary conditions on the 1D domain, such that the first index is the boundary condition
-                                                on the left side of the domain, and the second index is the type of boundary condition on the right side of the domain.
+        t (np.ndarray)                          : discretized values in time of the grid space.
+        x (np.ndarray)                          : discretized values of x in the grid space.
+        boundary_conditions (list of tuple)     : list of classifications of the boundary conditions on the 1D domain. Boundary conditions given as a tuple like so:
+                                                (condition type (str), function of condition (callable)). First entry is the boundary condition on the left side of 
+                                                the domain, and second entry is the boundary condition on the right side of the domain.
         time_index (int)                        : value of j such that current time = t[j]. Used in the case that kappa is variable in t.
-        discretization (str)                    : The kind of discretization used to solve the pde. This will affect the outputted matrix
+        discretization (str)                    : The kind of discretization used to solve the pde. This will affect the outputted matrix.
+        kappa_args (tuple)                      : Tuple of any additional positional arguements to be passed to kappa.
+        kappa_kwargs (dict)                     : Dictionary of key word arguements to be passed to kappa.
 
     Returns:
         pde_matrix (scipy.sparse.dia_matrix)    : Sparse matrix for use in forward euler or backward euler.
-        pde_matrix_A (scipy.sparse.dia_matrix)  : First matrix required for solving pde using crank nicholson
-        pde_matrix_B (scipy.sparse.dia_matrix)  : Second matrix required for solving pde using crank nicholson
+        pde_matrix_A (scipy.sparse.dia_matrix)  : First matrix required for solving pde using crank nicholson.
+        pde_matrix_B (scipy.sparse.dia_matrix)  : Second matrix required for solving pde using crank nicholson.
     '''
-# dirichlet differences:
-#   diag is (-lmbda, 1+2lmbda, lmbda)
-#   kappa is taken at t[j+1]
-    valid_boundary_conditions = ['Dirichlet', 'Neumann', 'Periodic']
-    valid_discretizations = ['Crank Nicholson','Backward Euler','Forward Euler']
-
-    assert all(condition[0] in valid_boundary_conditions for condition in boundary_conditions), \
-        'One or more of the boundary conditions enetered is invalid. Exiting...'
-    # if discretization arguement is not valid default to crank nicholson
-    if discretization not in valid_discretizations:
-        discretization = 'Crank Nicholson'
     
     deltat, deltax = get_grid_spacing(t,x)
     mt, mx = int(t[-1]/deltat), int(x[-1]/deltax)
@@ -197,22 +191,22 @@ def get_pde_solving_matrix(t,x,kappa,boundary_conditions=[('Dirichlet',), ('Diri
             elif condition[0] == 'Neumann':
                 # when i = 0 LHS BOUND : will take kappa at x[0] - deltax/2 ,to add (later) upper_diag[0]
                 # when i = 1 RHS BOUND : will take kappa at x[mx] + deltax/2 ,to add (later) lower_diag[-1]
-                diag_appendage[i] =  pow(2,-crank_n)*pow(-1,backw_e)*c*kappa(time,x[-i] + deltax/2 * pow(-1,i+1))
+                diag_appendage[i] =  pow(2,-crank_n)*pow(-1,backw_e)*c*kappa(time,x[-i] + deltax/2 * pow(-1,i+1), kappa_args, kappa_kwargs)
             elif condition[0] == 'Periodic':
                 # sets variables for periodic boundary conditions and terminates the loop
                 size = mx
                 bounds = [0, mx]
 
                 diag_appendage = [0,0]
-                diags[[-2,-1]] = pow(2,-crank_n)*pow(-1,backw_e)* np.array([c*kappa(time,x[0]-deltax/2), c*kappa(time,x[mx]-deltax/2)])
+                diags[[-2,-1]] = pow(2,-crank_n)*pow(-1,backw_e)* np.array([c*kappa(time,x[0]-deltax/2,kappa_args,kappa_kwargs), c*kappa(time,x[mx]-deltax/2,kappa_args,kappa_kwargs)])
                 total_diags = 5
                 break
 
         # works for variable kappa in x and t
-        middle_diag = np.array([1 + pow(2,-crank_n)*pow(-1,backw_e+1)*c*(kappa(time,x[i] +deltax/2) + kappa(time,x[i] -deltax/2)) for i in range(bounds[0],bounds[1])])
-        upper_diag = np.array([pow(2,-crank_n)*pow(-1,backw_e)*c*kappa(time,x[i] +deltax/2) for i in range(bounds[0],bounds[1]-1)])
+        middle_diag = np.array([1 + pow(2,-crank_n)*pow(-1,backw_e+1)*c*(kappa(time,x[i] +deltax/2,kappa_args,kappa_kwargs) + kappa(time,x[i] -deltax/2,kappa_args,kappa_kwargs)) for i in range(bounds[0],bounds[1])])
+        upper_diag = np.array([pow(2,-crank_n)*pow(-1,backw_e)*c*kappa(time,x[i] +deltax/2,kappa_args,kappa_kwargs) for i in range(bounds[0],bounds[1]-1)])
         upper_diag[0] += diag_appendage[0]
-        lower_diag = np.array([pow(2,-crank_n)*pow(-1,backw_e)*c*kappa(time,x[i] -deltax/2) for i in range(bounds[0]+1,bounds[1])])
+        lower_diag = np.array([pow(2,-crank_n)*pow(-1,backw_e)*c*kappa(time,x[i] -deltax/2,kappa_args,kappa_kwargs) for i in range(bounds[0]+1,bounds[1])])
         lower_diag[-1] += diag_appendage[1]
 
         diags[:3] = upper_diag, middle_diag, lower_diag
@@ -227,4 +221,63 @@ def get_pde_solving_matrix(t,x,kappa,boundary_conditions=[('Dirichlet',), ('Diri
     else:
         pde_matrix_A, pde_matrix_B = pde_matrices[0], pde_matrices[1]
         return pde_matrix_A, pde_matrix_B
+
+
+def get_condition_vector(t,x,kappa,boundary_conditions=[('Dirichlet', lambda t,x:0), ('Dirichlet', lambda t,x:0)], time_index=0, discretization='Crank Nicholson',
+    kappa_args=tuple(), kappa_kwargs=dict(), boundary_args=[tuple(),tuple()], boundary_kwargs=[dict(),dict()]):
+    ''' Gets the vector of elements to be added to the start and end of u in order to account for the effects
+    of different boundary conditions on the solution.
+    NOTE : This vector is added to the section of u[j] that is involved in the matrix operation to obtain u[j+1],
+    whether this is the full u[j] and what segment of u[j] it is is dependent on the boundary conditions aswell. 
+    
+    Args:
+        t (np.ndarray)                          : discretized values in time of the grid space
+        x (np.ndarray)                          : discretuzed values of x in the grid space
+        boundary_conditions (list of tuple)     : list of classifications of the boundary conditions on the 1D domain. Boundary conditions given as a tuple like so:
+                                                (condition type (str), function of condition (callable)). First entry is the boundary condition on the left side of 
+                                                the domain, and second entry is the boundary condition on the right side of the domain.
+        time_index (int)                        : value of j such that current time = t[j]. Used in the case that kappa is variable in t.
+        discretization (str)                    : The kind of discretization used to solve the pde. This will affect the outputted matrix
+
+    Returns:
+        condition_vector (np.ndarray)           : Vector of values to be integrated into obtaining the solution of u at the next time step.
+    '''
+    
+    condition_vector = np.array([0.0,0.0])
+    if any(bound_cond[0] == 'Periodic' for bound_cond in boundary_conditions):
+        return condition_vector
+
+    deltat, deltax = get_grid_spacing(t,x)
+    mt, mx = int(t[-1]/deltat), int(x[-1]/deltax)
+    c = deltat/deltax**2
+
+    match discretization:
+        # time is time at which pde is discretized about
+        # common coefficient when defining 1st element for all discritisations is c*P(time)
+        # common coefficient when defining 2nd element for all discritizations is c*Q(time)
+        # for crank nicholson it is c/2*(P(time-1/2) + P(time+1/2)) i.e. average of coefficients from backw and forw
+        case 'Forward Euler':
+            time = t[time_index]  
+            bound_coeff = [c*boundary_conditions[0][1](time,*boundary_args[0],**boundary_kwargs[0]), c*boundary_conditions[1][1](time,*boundary_args[1],**boundary_kwargs[1])]
+        case 'Backward Euler':
+            time = t[time_index] + deltat
+            bound_coeff = [c*boundary_conditions[0][1](time,*boundary_args[0],**boundary_kwargs[0]), c*boundary_conditions[1][1](time,*boundary_args[1],**boundary_kwargs[1])]
+        case 'Crank Nicholson':
+            time = t[time_index] + deltat/2
+            bound_coeff = [c/2*(boundary_conditions[0][1](t[time_index+1],*boundary_args[0],**boundary_kwargs[0]) + boundary_conditions[0][1](t[time_index],*boundary_args[0],**boundary_kwargs[0])), \
+                c/2*(boundary_conditions[1][1](t[time_index+1],*boundary_args[1],**boundary_kwargs[1]) + boundary_conditions[1][1](t[time_index],*boundary_args[1],**boundary_kwargs[1]))]
+    
+    Dirichlet_bounds = [x[0]+deltax/2, x[-1]-deltax/2]
+    Neumann_bounds = [x[0]-deltax/2, x[-1]+deltax/2]
+
+    for i, condition in enumerate(boundary_conditions):
+        match condition[0]:
+            case 'Dirichlet':
+                # always positive
+                condition_vector[i] = bound_coeff[i]*kappa(time,Dirichlet_bounds[i],kappa_args,kappa_kwargs)
+            case 'Neumann':
+                # neumann negative at left boundary and positive at right boundary
+                condition_vector[i] = pow(-1,i+1)*bound_coeff[i]*2*deltax*kappa(time,Neumann_bounds[i],kappa_args,kappa_kwargs)
+
+    return condition_vector
 
