@@ -26,7 +26,7 @@ class TestStringMethods(unittest.TestCase):
         anal_sol = anal_eq(T)
 
         x0 = np.array([1])
-        path = solve_ode(dx_dt, x0, solve_for=[0, T], deltat_max=1e-04, method='Euler')
+        path = solve_ode(dx_dt, x0, solve_for=[0, T], deltat_max=1e-04, method=ode.euler_step)
         numer_sol = path[-1]
 
         self.assertTrue(np.isclose(numer_sol, anal_sol, rtol=1e-02))
@@ -50,7 +50,7 @@ class TestStringMethods(unittest.TestCase):
         anal_eq = lambda t : np.array([np.sin(t), np.cos(t)])
         anal_sol = anal_eq(T)
 
-        path = solve_ode(dX_dt, init_cond, solve_for=[0, T], deltat_max=1e-04, method='Euler')
+        path = solve_ode(dX_dt, init_cond, solve_for=[0, T], deltat_max=1e-04, method=ode.euler_step)
         numer_sol = path[-1]
         self.assertTrue(np.all(np.isclose(numer_sol, anal_sol, rtol=1e-02)))
 

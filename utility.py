@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
 from ode import solve_ode
+import ode
 from scipy.integrate import solve_ivp
 import time
 # MAKE THIS WORK WITH NUMPY SOLVER
@@ -62,7 +63,7 @@ def mean_rel_error(A, B):
 
 #T
 def get_phase_portrait(dXdt, init_cond, solve_for, solver=solve_ode, title=None, xlabel=None, ylabel=None, portrait_variables=(0,1), title_size=11, centre_spines=True,
-                       deltat_max=np.inf, method='RK4', time_first=True, solver_args=dict(), t=None, args=()):
+                       deltat_max=np.inf, method=ode.RK4_step, time_first=True, solver_args=dict(), t=None, args=()):
     """will solve a system of ODE's and plot their phase portrait. ONLY WORKS IN 2D
     TEST : PRED-PREY"""
     if xlabel is None and ylabel is None:

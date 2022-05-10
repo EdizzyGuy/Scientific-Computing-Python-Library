@@ -27,8 +27,8 @@ initial_condition = np.array([0, 1])
 solve_for = np.linspace(0, 2*np.pi, 6)
 time_step = 0.0001
 
-result_euler = ode.solve_ode(dX_dt, initial_condition, solve_for, deltat_max=time_step, method='Euler')
-result_rk4 = ode.solve_ode(dX_dt, initial_condition, solve_for, deltat_max=time_step, method='RK4')
+result_euler = ode.solve_ode(dX_dt, initial_condition, solve_for, deltat_max=time_step, method=ode.euler_step)
+result_rk4 = ode.solve_ode(dX_dt, initial_condition, solve_for, deltat_max=time_step, method=ode.RK4_step)
 
 true_results = np.array([np.sin(solve_for), np.cos(solve_for)]).transpose()
 mse_euler = np.square(result_euler - true_results).mean()

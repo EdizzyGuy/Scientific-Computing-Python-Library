@@ -9,6 +9,7 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 from ode import solve_ode
+import ode
 from utility import get_phase_portrait
 from scipy.integrate import solve_ivp
 from scipy.optimize import fsolve
@@ -66,7 +67,7 @@ time_step = 0.01
 
 # REPLACE THE BELOW WITH A TIMER FUNCTION
 start_myode = time.time()
-trajectory = solve_ode(dXdt, initial_condition, solve_for, deltat_max=time_step, method='RK4', args=(a, b, d))
+trajectory = solve_ode(dXdt, initial_condition, solve_for, deltat_max=time_step, method=ode.RK4_step, args=(a, b, d))
 end_myode = time.time()
 my_ode_time = end_myode - start_myode
 
@@ -96,7 +97,7 @@ get_phase_portrait(dXdt, initial_condition, solve_for, title=f"Simulation of Pre
 # isolate a periodic orbit
 # start at large time therfore will definitely be an orbit
 solve_for = np.linspace(0, 1000)
-trajectory = solve_ode(dXdt, initial_condition, solve_for, deltat_max=time_step, method='RK4', args=(a, b, d))
+trajectory = solve_ode(dXdt, initial_condition, solve_for, deltat_max=time_step, method=ode.RK4_step, args=(a, b, d))
 # BUG found bug where solve ode will always start at time = 0 even when specified to start at differet t
 initial_orbit = trajectory[-1, :]
 

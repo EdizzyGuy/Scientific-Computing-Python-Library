@@ -40,9 +40,9 @@ errors_RK45 = np.zeros(shape=time_steps.shape)
 
 i = 0
 for time_step in time_steps:
-    result_euler = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method='Euler')
-    result_RK4 = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method='RK4')
-    result_RK45 = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method='RK45')
+    result_euler = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method=ode.euler_step)
+    result_RK4 = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method=ode.RK4_step)
+    result_RK45 = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method=ode.RK4_step)
 
     errors_euler[i] = result_euler[1][0] - true_ans
     errors_RK4[i] = result_RK4[1][0] - true_ans
