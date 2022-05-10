@@ -100,7 +100,7 @@ def RK45_step(t, dx_dt, init_point, step_size, args, kwargs):
     new_time = t +step_size
     return new_point, new_time
 
-def solve_to(dx_dt, init_point, deltat_max=0.001, time_interval=[0, 1], method='RK4', args=(), kwargs=dict()):
+def solve_to(dx_dt, init_point, deltat_max=0.001, time_interval=[0, 1], method=RK4_step, args=(), kwargs=dict()):
     """ Function will use a valid method to solve a system of equations characterised by dx_dt
     with a maximum step size between subsequent x being deltat_max.
     Will solve ODE from time_interval[START, FINISH], where start is taken as argument in case the dynamical
@@ -111,7 +111,7 @@ def solve_to(dx_dt, init_point, deltat_max=0.001, time_interval=[0, 1], method='
         init_point (np.ndarray)     : initial point to implement the euler step on
         deltat_max (float)          : maximum allowed step size, keep small for improved accuracy
         time_interval (list-like)   : time interval in which to integrate ODE
-        method (str)                : one step integration method
+        method (callable)           : one step integration method
         args (tuple)                : optional arguements to be passed to dx_dt
         kwargs (dict)               : keyword arguements to be passed to dx_dt
         
@@ -123,46 +123,22 @@ def solve_to(dx_dt, init_point, deltat_max=0.001, time_interval=[0, 1], method='
     current_step = init_point
     current_time = time_interval[0]
 
-    match method:
-        case 'Euler':
-            while time_interval[1] - current_time > deltat_max:
-                next_step, next_time = euler_step(current_time, dx_dt, current_step, step_size=deltat_max, 
-                                        args=args, kwargs=kwargs)
+    while time_interval[1] - current_time > deltat_max:
+        next_step, next_time = method(current_time, dx_dt, current_step, step_size=deltat_max, 
+                                args=args, kwargs=kwargs)
 
-                current_time = next_time
-                current_step = next_step
-            min_step = time_interval[1] - current_time
-            last_step, last_time = euler_step(current_time, dx_dt, current_step, step_size=min_step,
-                                    args=args, kwargs=kwargs)
-
-        case 'RK4':
-            while time_interval[1] - current_time > deltat_max:
-                next_step, next_time = RK4_step(current_time, dx_dt, current_step, step_size=deltat_max,
-                                                args=args, kwargs=kwargs)
-
-                current_time = next_time
-                current_step = next_step
-            min_step = time_interval[1] - current_time
-            last_step, last_time = RK4_step(current_time, dx_dt, current_step, step_size=min_step,
-                                            args=args, kwargs=kwargs)
-
-        case 'RK45':
-            while time_interval[1] - current_time > deltat_max:
-                next_step, next_time = RK45_step(current_time, dx_dt, current_step, step_size=deltat_max,
-                                                args=args, kwargs=kwargs)
-
-                current_time = next_time
-                current_step = next_step
-            min_step = time_interval[1] - current_time
-            last_step, last_time = RK45_step(current_time, dx_dt, current_step, step_size=min_step,
-                                            args=args, kwargs=kwargs)
+        current_time = next_time
+        current_step = next_step
+    min_step = time_interval[1] - current_time
+    last_step, last_time = euler_step(current_time, dx_dt, current_step, step_size=min_step,
+                            args=args, kwargs=kwargs)
 
 
 # NUMERICAL ISSUE : time does not add up to what it is meant to be exactly due to rounding errors
     return last_step, last_time
 
 
-def solve_ode(dx_dt, init_cond, solve_for=np.linspace(0,10,100), deltat_max=0.001, method='RK4', args=(), kwargs=dict()):
+def solve_ode(dx_dt, init_cond, solve_for=np.linspace(0,10,100), deltat_max=0.001, method=RK4_step, args=(), kwargs=dict()):
     """ This function will solve a system of differential equations characterised by dx_dt, with a given initial
     condition. Can use either 'RK4' or 'Euler' as a method of integration, and will implement these methods with the
     time step defined as deltat_max. Function will solve for all values of time inside the array 'solve_for'
@@ -176,7 +152,7 @@ def solve_ode(dx_dt, init_cond, solve_for=np.linspace(0,10,100), deltat_max=0.00
         init_cond (np.ndarray)      : state of the system at time 0
         solve_for (np.ndarray)      : array of values to return the intgrated ODE at
         deltat_max (float)          : maximum allowed step size for the one step intgration, decrease for increased accuracy
-        method (str)                : method of one step intgration, choose 'Euler' or 'RK4'
+        method (callable)           : method of one step intgration, choose 'Euler' or 'RK4'
         args (tuple)                : positional arguements to be passed to dx_dt
         kwargs (dict)               : keyword arguements to be passed to dx_dt
 
@@ -186,8 +162,7 @@ def solve_ode(dx_dt, init_cond, solve_for=np.linspace(0,10,100), deltat_max=0.00
     
 # MAKE USER UNABLE TO ENTER ANY OTHER METHOD THAN A VALID ONE
 # TEST test to check if steps sum to time interval
-    valid_methods = ['Euler', 'RK4', 'RK45']
-    assert method in valid_methods, '1 step integration method supplied is not valid'
+    assert callable(method), '1 step integration method supplied is not valid'
 
     x = np.zeros(shape=(len(solve_for), init_cond.size))
     x[0, :] = init_cond
