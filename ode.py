@@ -130,7 +130,7 @@ def solve_to(dx_dt, init_point, deltat_max=0.001, time_interval=[0, 1], method=R
         current_time = next_time
         current_step = next_step
     min_step = time_interval[1] - current_time
-    last_step, last_time = euler_step(current_time, dx_dt, current_step, step_size=min_step,
+    last_step, last_time = method(current_time, dx_dt, current_step, step_size=min_step,
                             args=args, kwargs=kwargs)
 
 

@@ -42,7 +42,7 @@ i = 0
 for time_step in time_steps:
     result_euler = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method=ode.euler_step)
     result_RK4 = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method=ode.RK4_step)
-    result_RK45 = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method=ode.RK4_step)
+    result_RK45 = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method=ode.RK45_step)
 
     errors_euler[i] = result_euler[1][0] - true_ans
     errors_RK4[i] = result_RK4[1][0] - true_ans
@@ -80,7 +80,8 @@ ax1.set_ylim(y_lim)
 ax2.set_ylim(y_lim)
 ax3.set_ylim(y_lim)
 
-fig.savefig('errors_Euler_rk4_rk45.png')
+plt.show()
+#fig.savefig('errors_Euler_rk4_rk45.png')
 
 ''' How does the error depend on Δt\Delta tΔt now? How does this compare with the error for the Euler method (put this in the
 same plot)? '''
