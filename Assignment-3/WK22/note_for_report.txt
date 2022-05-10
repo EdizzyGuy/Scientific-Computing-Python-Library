@@ -79,6 +79,8 @@ could have a parameter passed that tells function if boundary is homogenous diri
 
 F(t,x,u) will not work for crank nickolson or backward euler due to where it has been discretized
 
+should have integrated rk45 into graph of errors
+
 NEUMANN 
 
     EXTENSION

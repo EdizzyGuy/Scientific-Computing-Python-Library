@@ -174,4 +174,32 @@ def time_function(func, count=1, args=tuple(), kwargs=dict()):
         std = np.inf
     return avg, std
 
+## Tri Diagonal Matrix Algorithm(a.k.a Thomas algorithm) solver
+"""stolen from: https://gist.github.com/cbellei/8ab3ab8551b8dfc8b081c518ccd9ada9"""
+def TDMAsolver(a, b, c, d):
+    ''' Solves the linear set of equations defined by Mx = b, where M is a known tridiagonal matrix and
+    b is a vector.
+    Args:
+        a (np.ndarray) : lower diagonal of M
+        b (np.ndarray) : middle diagonal of M
+        c (np.ndarray) : upper diagonal of M
+        d (np.ndarray) : vector b in equation Mx = b
+    Returns:
+        xc (np.ndarray) : The solution x to Mx = b
+    '''
+    nf = len(d) # number of equations
+    ac, bc, cc, dc = map(np.array, (a, b, c, d)) # copy arrays
+    for it in range(1, nf):
+        mc = ac[it-1]/bc[it-1]
+        bc[it] = bc[it] - mc*cc[it-1] 
+        dc[it] = dc[it] - mc*dc[it-1]
+        	    
+    xc = bc
+    xc[-1] = dc[-1]/bc[-1]
+
+    for il in range(nf-2, -1, -1):
+        xc[il] = (dc[il]-cc[il]*xc[il+1])/bc[il]
+
+    return xc
+
 

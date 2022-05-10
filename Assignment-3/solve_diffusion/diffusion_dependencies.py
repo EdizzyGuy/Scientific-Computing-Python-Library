@@ -222,7 +222,7 @@ def get_pde_solving_matrix(t,x,kappa,boundary_conditions=[('Dirichlet',), ('Diri
         pde_matrix_A, pde_matrix_B = pde_matrices[0], pde_matrices[1]
         return pde_matrix_A, pde_matrix_B
 
-
+# dot use this for periodic and homogenous dirichlet
 def get_condition_vector(t,x,kappa,boundary_conditions=[('Dirichlet', lambda t,x:0), ('Dirichlet', lambda t,x:0)], time_index=0, discretization='Crank Nicholson',
     kappa_args=tuple(), kappa_kwargs=dict(), boundary_args=[tuple(),tuple()], boundary_kwargs=[dict(),dict()]):
     ''' Gets the vector of elements to be added to the start and end of u in order to account for the effects

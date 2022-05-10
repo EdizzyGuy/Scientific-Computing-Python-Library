@@ -307,7 +307,7 @@ def test_simple_heat_eq_backw_euler():
         anal_u = u_exact(x,T)
 
         args = (t,x,kappa,u_I)
-        kwargs = {'discretization' : 'Backward Euler'}
+        kwargs = {'discretization' : 'Forward Euler'}
 
         u_fe = solve_diffusion(*args,**kwargs)
         rel_error = mean_rel_error(u_fe[-1], anal_u)
@@ -320,3 +320,34 @@ end = time.time()
 if maybe:
     print(end-start)
     print('yay')
+
+rtol=1e-02
+
+L=1.0         # length of spatial domain
+T=0.5         # total time to solve for
+def kappa(x):
+    return 1.0
+
+def u_I(x):
+    # initial temperature distribution
+    y = np.sin(pi*x/L)
+    return y
+def u_exact(x,t):
+    # the exact solution
+    y = np.exp(-1.0*(pi**2/L**2)*t)*np.sin(pi*x/L)
+    return y
+
+mx = 100
+mt = 10000
+
+t,x = get_grid_space(T,L,mt,mx)
+
+anal_u = u_exact(x,T)
+
+args = (t,x,kappa,u_I)
+kwargs = {'discretization' : 'Forward Euler'}
+
+a,s = time_function(solve_diffusion,10,args,kwargs) 
+
+print(a)
+print(s)

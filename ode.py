@@ -1,28 +1,10 @@
 # ADD VARIABLE STEP SIZE
+from matplotlib.pyplot import step
 import numpy as np
 import time
 
-def hopf_bifurcation(t, U, beta, sigma):
-    u1 = U[0]
-    u2 = U[1]
-
-    u1_dot = beta*u1 - u2 + sigma *u1 *(u1*u1 + u2*u2)
-    u2_dot = u1 + beta*u2 + sigma *u2 *(u1*u1 + u2*u2)
-    U_dot = np.array([u1_dot, u2_dot])
-    return U_dot
-
-def hopf_extended(t, U, beta=2, sigma=-1):
-    t = None
-
-    U_dot = np.zeros(3)
-    U_dot[:-1] = hopf_bifurcation(t, U[:-1], beta, sigma)
-    U_dot[-1] = - U[-1]
-
-    return U_dot
-
 # NOW WORKING WITH PARAMETERS
 # CHECK WITH PRED-PREY EQ
-
 
 def euler_step(t, dx_dt, init_point, step_size, args, kwargs):
     """ Will implement a forward euler step given the derivative of a system of equations (dx_dt)
@@ -74,6 +56,9 @@ def RK4_step(t, dx_dt, init_point, step_size, args, kwargs):
     new_time = t + step_size
     return new_point, new_time
 
+# copied from matlab website
+# https://uk.mathworks.com/matlabcentral/fileexchange/73881-runge-kutta-fehlberg-rkf45/
+# is meant to be variable step size
 def RK45_step(t, dx_dt, init_point, step_size, args, kwargs):
     """ Will implement an increment in the independent variable of size step_size and find
     new value of dependent variable based on derivative of a system of equations (dx_dt)
@@ -92,13 +77,26 @@ def RK45_step(t, dx_dt, init_point, step_size, args, kwargs):
         new_time (float)        : new value of time after the euler step
     """
     k1 = step_size * dx_dt(t, init_point, *args, **kwargs)
-    k2 = step_size* dx_dt(t + step_size/2, init_point + k1/2, *args, **kwargs)
-    k3 = step_size * dx_dt(t+step_size/2, init_point+(k1+k2)/4, *args, **kwargs)
-    k4 = step_size * dx_dt(t + step_size, init_point-k2+2*k3, *args, **kwargs)
-    k5 = step_size * dx_dt(t+step_size/3,init_point+7/27*k1 +10/17*k2 +1/27*k4, *args, **kwargs)
-    k6 = step_size *dx_dt(t+1/5*step_size,init_point +28/625*k1 -1/5*k2 +546/625*k3 +54/625*k4 -378/625*k5, *args, **kwargs)
 
-    new_point = init_point +1/24*k1 +5/48*k4 +27/56*k5 +125/336*k6
+    t2, y2 = t + step_size/4, init_point + k1/4
+    k2 = step_size* dx_dt(t2, y2, *args, **kwargs)
+
+    t3, y3 = t + 3/8*step_size, init_point + 3/32*k1 + 9/32*k2
+    k3 = step_size * dx_dt(t3, y3, *args, **kwargs)
+
+    t4, y4 = t + 12/13*step_size, init_point +1932/2197*k1 -7200/2197*k2 +7296/2197*k3 
+    k4 = step_size * dx_dt(t4, y4, *args, **kwargs)
+
+    t5, y5 = t +step_size, init_point +439/216*k1 -8*k2 +3680/513*k3 -845/4104*k4
+    k5 = step_size * dx_dt(t5, y5, *args, **kwargs)
+
+    t6, y6 = t +step_size/2, init_point -8/27*k1 +2*k2 -3544/2565*k3 +1859/4104*k4 -11/50*k5
+    k6 = step_size *dx_dt(t6, y6, *args, **kwargs)
+
+    new_point = init_point +25/216*k1 +1408/2565*k3 +2197/4104*k4 +-1/5*k5
+    #                                                          
+#        y(i+1) = y(i) +  h * ( 25 / 216 * k1 + 1408 / 2565 * k3             
+#                              + 2197 / 4104 * k4 - 1 / 5 * k5 )             
     new_time = t +step_size
     return new_point, new_time
 
@@ -121,11 +119,6 @@ def solve_to(dx_dt, init_point, deltat_max=0.001, time_interval=[0, 1], method='
         last_step (np.ndarray)      : state of the integrated ODE at the end of the time interval
         last_time (float)           : value of time after integrating ODE between time_interval
     """
-
-# MAKE USER UNABLE TO ENTER ANY OTHER METHOD THAN A VALID ONE
-# TEST test to check if steps sum to time interval
-    valid_methods = ['Euler', 'RK4', 'RK45']
-    assert method in valid_methods, '1 step integration method supplied is not valid'
 
     current_step = init_point
     current_time = time_interval[0]
@@ -188,12 +181,14 @@ def solve_ode(dx_dt, init_cond, solve_for=np.linspace(0,10,100), deltat_max=0.00
         kwargs (dict)               : keyword arguements to be passed to dx_dt
 
     Returns:
-        x (np.ndarray)              : State of the integrated system of ODE's at time points defined by solve_for
-                                      First index will return state at time point defined by solve_for and the second 
-                                      will return the state variable in question:
-                                      e.g. for X=[x,y] and solve_for = [0,1] and a suitable initial condition and derivative function
-                                      x[1,1] will give the value of y at time 1. 
+        x (np.ndarray)              : State of the integrated system of ODE's at time points defined by solve_for.
     """
+    
+# MAKE USER UNABLE TO ENTER ANY OTHER METHOD THAN A VALID ONE
+# TEST test to check if steps sum to time interval
+    valid_methods = ['Euler', 'RK4', 'RK45']
+    assert method in valid_methods, '1 step integration method supplied is not valid'
+
     x = np.zeros(shape=(len(solve_for), init_cond.size))
     x[0, :] = init_cond
 

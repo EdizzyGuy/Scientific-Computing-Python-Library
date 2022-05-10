@@ -46,6 +46,17 @@ def shooting(dXdt, explicit_time_dep=False, phase_condition=None, ode_solver=sol
     assume using solve_ivp due to superior performance (probably due to its variable step size)
     set exp time dep to false because most of our examples have no exp time dep
     time_first set as True by default so that I dont have to change it to test solve_ode
+
+    Args:
+        dXdt (callable) : derivative wrt time of the system
+        explicit_time_dep (boolean) : should be true if the system of equations displays explicit time dep. Used in shooting.
+        phase_condition (callable) : User defined phase condition in case that the default one fails
+        ode_solver (callable) : Any valid function that can solve a system of ordinary differential equations
+        solver_args (tuple) : positional arguements to be passed to the ode solver
+        time_first (boolean)    : Should be true if ode solver outputs array such that timeis indexed first
+        args (tuple) : positional arguements to be passed to dXdt
+    Returns:
+        root_finding_problem (callable) : root finding problem as defined in numerical shooting
     '''
     # intialise deltat_max if solve_ode
     if (ode_solver == solve_ode) and ('deltat_max' not in solver_args):
@@ -98,9 +109,28 @@ def shooting(dXdt, explicit_time_dep=False, phase_condition=None, ode_solver=sol
     #                  deltat_max=np.inf, int_method='RK4', time_first=True, solver_args=dict(),
     #                  t=None, find_period=True, phase_condition=None, args=())
 def find_limit_cycles(dXdt, init_guess, ode_solver=solve_ivp, root_solver=None, discretization=shooting,
-        root_methods=('hybr', 'lm'), time_first=True, explicit_time_dep=False, discr_args=dict(), root_args=None, 
+        root_methods=('hybr', 'lm'), time_first=True, explicit_time_dep=False, 
+        discr_args=dict(), discr_kwargs=dict(), root_args=None, 
         solver_args=dict(), args=()):
-    ''''
+    ''' attempts to find potentially stable limit cycles in the system defined by dXdt. This is achieved by constructing the
+    appropriate root finding problem as defined in shooting by default, but other root based methods are applicable.
+
+    Args:
+        dXdt (callable) : derivative wrt time of the system
+        ode_solver (callable) : Any valid function that can solve a system of ordinary differential equations
+        root_solver (callable) : function to solve roots
+        discretization (callable) : Function used to discretize the limit cycle
+        root_methods (iterable) : in case of using scipy.optimize.roots will iterate through this iterable of methods in order
+                                    until a solution is reached or the end of the list is reached.
+        time_first (boolean)    : Should be true if ode solver outputs array such that timeis indexed first
+        explicit_time_dep (boolean) : should be true if the system of equations displays explicit time dep. Used in shooting.
+        discr_args (tuple) : positional arguements to be passed to the discretization function
+        discr_kwargs (dict) : key word arguements to be supllied to the discretization function
+        root_args (tuple) : positional arguements to be passed to the root solver
+        solver_args (tuple) : positional arguements to be passed to the ode solver
+    Returns:
+        roots (np.ndarray) : roots of the root finding problem (state vector of position on cycle, period of cycle)
+        None               : returned in case that no roots were found
     orig args : (deltat_max=np.inf, int_method='RK4', 
                       t=None, phase_condition=None)'''
     # default to no extra arguements passed to root solver
@@ -114,7 +144,7 @@ def find_limit_cycles(dXdt, init_guess, ode_solver=solve_ivp, root_solver=None, 
     assert len(root_methods) == len(root_args), 'Each root method must be given a corresponding arguement'
     
   # seperating ode_solver and time_first and exp time dep from discr_args because these arguements will affect other discretization techniques
-    discr_func = discretization(dXdt, explicit_time_dep, ode_solver=solve_ivp, time_first=time_first, solver_args=solver_args, **discr_args, args=args)
+    discr_func = discretization(dXdt, explicit_time_dep, ode_solver=ode_solver, time_first=time_first, solver_args=solver_args, *discr_args, **discr_kwargs, args=args)
     
     # special case for scipy root since returns object
     if root_solver == None:

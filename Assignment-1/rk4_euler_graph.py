@@ -1,5 +1,6 @@
 import sys
 import os
+
 path = sys.path[0]
 parent = os.path.dirname(path)
 sys.path.append(parent)
@@ -35,39 +36,51 @@ initial_condition = np.array(1)
 true_ans = np.exp(time[1])
 errors_euler = np.zeros(shape=time_steps.shape)
 errors_RK4 = np.zeros(shape=time_steps.shape)
+errors_RK45 = np.zeros(shape=time_steps.shape)
 
 i = 0
 for time_step in time_steps:
     result_euler = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method='Euler')
     result_RK4 = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method='RK4')
+    result_RK45 = ode.solve_ode(dx_dt, initial_condition, time, deltat_max=time_step, method='RK45')
 
     errors_euler[i] = result_euler[1][0] - true_ans
     errors_RK4[i] = result_RK4[1][0] - true_ans
+    errors_RK45[i] = result_RK45[1][0] - true_ans
     i += 1
 
 fig = plt.figure(figsize=(8, 6), dpi=100)
-fig.suptitle('Effectiveness of solve_ode function with different iterative methods')
+fig.suptitle('Effectiveness of solve_ode function with different iterative methods', fontweight='bold')
 
-ax1 = plt.subplot(1, 2, 1)
+ax1 = plt.subplot(1, 3, 1)
 plt.loglog(time_steps, np.abs(errors_euler), color='blue', linewidth=2.5, linestyle='-')
 ax1.set_xlabel(r'Maximum step size')
 ax1.set_ylabel(r'Error in approximation to x(1)')
 ax1.set_title(r"Euler's method")
 plt.grid()
 
-ax2 = plt.subplot(1, 2, 2)
+ax2 = plt.subplot(1, 3, 2)
 plt.loglog(time_steps, np.abs(errors_RK4), color='blue', linewidth=2.5, linestyle='-')
 ax2.set_xlabel(r'Maximum step size')
 # maybe doesnt need y axis label
-ax2.set_title(r"classic Runge-Kutta method")
+ax2.set_title("classic Runge-Kutta\nmethod")
 plt.grid()
 
-y_lim = (ax2.get_ylim()[0], ax1.get_ylim()[1])
+ax3 = plt.subplot(1, 3, 3)
+plt.loglog(time_steps, np.abs(errors_RK45), color='blue', linewidth=2.5, linestyle='-')
+ax3.set_xlabel(r'Maximum step size')
+# maybe doesnt need y axis label
+ax3.set_title("Runge-Kutta-Fehlberg\nmethod")
+plt.grid()
+
+min = np.min([ax3.get_ylim()[0],ax1.get_ylim()[0],ax2.get_ylim()[0]])
+max = np.max([ax1.get_ylim()[1],ax2.get_ylim()[1],ax3.get_ylim()[1]])
+y_lim = (min, max)
 ax1.set_ylim(y_lim)
 ax2.set_ylim(y_lim)
+ax3.set_ylim(y_lim)
 
-plt.show()
-#fig.savefig('errors_rk4andEuler.png')
+fig.savefig('errors_Euler_rk4_rk45.png')
 
 ''' How does the error depend on Δt\Delta tΔt now? How does this compare with the error for the Euler method (put this in the
 same plot)? '''

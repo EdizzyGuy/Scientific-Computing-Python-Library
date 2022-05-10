@@ -6,6 +6,7 @@ sys.path.append(parent)
 
 from rk4_euler_graph import errors_RK4, errors_euler, time_steps, dx_dt, initial_condition
 import ode
+from utility import *
 import numpy as np
 import time
 
@@ -36,14 +37,9 @@ print(f'step sizes {eul_time_step} and {rk4_time_step} give very similar errors 
 
 # find out how long each method takes with this step size
 solve_between = np.array([0, 1])
-start = time.time()
-ode.solve_ode(dx_dt, initial_condition, solve_between, deltat_max=eul_time_step, method='Euler')
-lap_1 = time.time()
-ode.solve_ode(dx_dt, initial_condition, solve_between, deltat_max=rk4_time_step, method='RK4')
-lap_2 = time.time()
 
-eul_time = lap_1 - start
-rk4_time = lap_2 - lap_1
+eul_time,eul_std = time_function(solve_ode, 100, args=(dx_dt, initial_condition, solve_between), kwargs={'deltat_max':eul_time_step, 'method':'Euler'})
+rk4_time, rk4_std = time_function(solve_ode, 1000, args=(dx_dt, initial_condition, solve_between), kwargs={'deltat_max':rk4_time_step, 'method':'RK4'})
 
 print(f'Euler time          : {eul_time}')
 print(f'Runge-kutta time    : {rk4_time}')
